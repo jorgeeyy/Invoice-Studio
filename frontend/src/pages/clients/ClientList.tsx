@@ -1,207 +1,439 @@
 import { useState } from 'react';
-import { 
-  MoreHorizontal,
-  TrendingUp,
-  Filter,
-  Download,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Plus, Search, Users, Edit2, Trash2, X } from 'lucide-react';
+import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from '@/hooks/useClients';
+import type { Client, CreateClientInput } from '@/types';
 
-const clientData = [
-  { id: '1', name: 'Vortex Digital', clientId: 'CLI-0082', contact: 'Sarah Jenkins', email: 's.jenkins@vortex.io', invoices: 14, totalBilled: 28450, outstanding: 0 },
-  { id: '2', name: 'Aether Design Studio', clientId: 'CLI-0124', contact: 'Marcus Thorne', email: 'm.thorne@aether.co', invoices: 8, totalBilled: 12200, outstanding: 2450 },
-  { id: '3', name: 'Kinetics Corp', clientId: 'CLI-0041', contact: 'Lila Chen', email: 'lila.c@kinetics.net', invoices: 32, totalBilled: 45900, outstanding: 8120 },
-  { id: '4', name: 'Project Orion', clientId: 'CLI-0095', contact: 'David Orion', email: 'billing@orion.space', invoices: 5, totalBilled: 8400, outstanding: 0 },
-];
+interface ClientFormData {
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  website: string;
+  company: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  taxId: string;
+  notes: string;
+}
+
+const defaultFormData: ClientFormData = {
+  name: '',
+  contactPerson: '',
+  email: '',
+  phone: '',
+  website: '',
+  company: '',
+  address: {
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: '',
+  },
+  taxId: '',
+  notes: '',
+};
 
 export function ClientList() {
+  const { data: clients, isLoading } = useClients();
+  const createClient = useCreateClient();
+  const updateClient = useUpdateClient();
+  const deleteClient = useDeleteClient();
+
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [formData, setFormData] = useState<ClientFormData>(defaultFormData);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const filteredClients = clients?.filter(
+    (client) =>
+      client.status === activeTab &&
+      (client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.company?.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const handleOpenModal = (client?: Client) => {
+    if (client) {
+      setEditingClient(client);
+      setFormData({
+        name: client.name,
+        contactPerson: client.contactPerson || '',
+        email: client.email,
+        phone: client.phone || '',
+        website: client.website || '',
+        company: client.company || '',
+        address: client.address || { street: '', city: '', state: '', zipCode: '', country: '' },
+        taxId: client.taxId || '',
+        notes: client.notes || '',
+      });
+    } else {
+      setEditingClient(null);
+      setFormData(defaultFormData);
+    }
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingClient(null);
+    setFormData(defaultFormData);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const input: CreateClientInput = {
+        name: formData.name,
+        contactPerson: formData.contactPerson || undefined,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        website: formData.website || undefined,
+        company: formData.company || undefined,
+        address: formData.address.street ? formData.address : undefined,
+        taxId: formData.taxId || undefined,
+        notes: formData.notes || undefined,
+      };
+
+      if (editingClient) {
+        await updateClient.mutateAsync({ id: editingClient.id, input });
+      } else {
+        await createClient.mutateAsync(input);
+      }
+      handleCloseModal();
+    } catch (error) {
+      console.error('Failed to save client:', error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteClient.mutateAsync(id);
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error('Failed to delete client:', error);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="font-headline text-2xl font-bold text-primary">Clients</h2>
-          <p className="text-sm text-on-surface-variant mt-1">Manage your customer relationships and track billing history.</p>
+          <h1 className="font-headline text-2xl font-bold text-primary">Clients</h1>
+          <p className="text-on-surface-variant mt-1">Manage your client relationships</p>
         </div>
-        <button className="bg-secondary text-white px-6 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2 hover:bg-blue-700 transition-all shadow-sm">
-          + Add Client
+        <button
+          onClick={() => handleOpenModal()}
+          className="bg-primary text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all"
+        >
+          <Plus className="w-4 h-4" />
+          Add Client
         </button>
-      </section>
+      </div>
 
-      {/* Stats Overview */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-surface-container-lowest border border-border-subtle p-5 rounded-xl flex flex-col gap-2 hover:border-secondary transition-colors group">
-          <span className="text-xs font-bold uppercase text-on-surface-variant">Total Clients</span>
-          <div className="flex items-end justify-between">
-            <span className="text-2xl font-bold">124</span>
-            <span className="text-status-paid text-xs font-semibold flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" /> +12%
-            </span>
-          </div>
+      {/* Tabs and Search */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-2 p-1 bg-surface-container-low rounded-lg w-fit">
+          <button
+            onClick={() => setActiveTab('active')}
+            className={`px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-colors ${
+              activeTab === 'active' ? 'bg-surface-container-lowest shadow-sm text-secondary' : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setActiveTab('archived')}
+            className={`px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-colors ${
+              activeTab === 'archived' ? 'bg-surface-container-lowest shadow-sm text-secondary' : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`}
+          >
+            Archived
+          </button>
         </div>
-        <div className="bg-surface-container-lowest border border-border-subtle p-5 rounded-xl flex flex-col gap-2 hover:border-secondary transition-colors group">
-          <span className="text-xs font-bold uppercase text-on-surface-variant">Active This Month</span>
-          <div className="flex items-end justify-between">
-            <span className="text-2xl font-bold">48</span>
-            <span className="text-on-surface-variant text-xs font-medium">82% engagement</span>
-          </div>
-        </div>
-        <div className="bg-surface-container-lowest border border-border-subtle p-5 rounded-xl flex flex-col gap-2 hover:border-secondary transition-colors group">
-          <span className="text-xs font-bold uppercase text-on-surface-variant">Total Billed</span>
-          <div className="flex items-end justify-between">
-            <span className="text-2xl font-bold">$142,500</span>
-            <span className="text-status-paid text-xs font-semibold flex items-center gap-1">
-              <span className="text-sm">$</span>
-            </span>
-          </div>
-        </div>
-        <div className="bg-surface-container-lowest border border-border-subtle p-5 rounded-xl flex flex-col gap-2 border-l-4 border-l-status-warning hover:border-secondary transition-colors group">
-          <span className="text-xs font-bold uppercase text-on-surface-variant">Total Outstanding</span>
-          <div className="flex items-end justify-between">
-            <span className="text-2xl font-bold text-status-warning">$18,240</span>
-            <span className="text-on-surface-variant text-xs font-medium">12 Invoices</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Table Filters and List */}
-      <div className="bg-surface-container-lowest border border-border-subtle rounded-xl overflow-hidden flex flex-col">
-        {/* Table Controls */}
-        <div className="p-4 border-b border-border-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 p-1 bg-surface-container-low rounded-lg w-fit">
-            <button 
-              onClick={() => setActiveTab('active')}
-              className={`px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-colors ${
-                activeTab === 'active' ? 'bg-surface-container-lowest shadow-sm text-secondary' : 'text-on-surface-variant hover:bg-surface-container-high'
-              }`}
-            >
-              Active
-            </button>
-            <button 
-              onClick={() => setActiveTab('archived')}
-              className={`px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-colors ${
-                activeTab === 'archived' ? 'bg-surface-container-lowest shadow-sm text-secondary' : 'text-on-surface-variant hover:bg-surface-container-high'
-              }`}
-            >
-              Archived
-            </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-3 py-2 border border-border-subtle rounded-lg text-xs font-semibold text-on-surface hover:bg-surface-container-low transition-colors">
-              <Filter className="w-4 h-4" /> Filter
-            </button>
-            <button className="flex items-center gap-2 px-3 py-2 border border-border-subtle rounded-lg text-xs font-semibold text-on-surface hover:bg-surface-container-low transition-colors">
-              <Download className="w-4 h-4" /> Export
-            </button>
-          </div>
-        </div>
-
-        {/* Clients Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-surface-container-low/50">
-                <th className="px-6 py-4 text-xs font-bold uppercase text-on-surface-variant border-b border-border-subtle">Client Name</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase text-on-surface-variant border-b border-border-subtle">Primary Contact</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase text-on-surface-variant border-b border-border-subtle text-center">Invoices</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase text-on-surface-variant border-b border-border-subtle text-right">Total Billed</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase text-on-surface-variant border-b border-border-subtle text-right">Outstanding</th>
-                <th className="px-6 py-4 border-b border-border-subtle"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-subtle">
-              {clientData.map((client) => (
-                <tr key={client.id} className="group hover:bg-surface-container-low/30 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary font-bold text-lg">
-                        {client.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm text-primary">{client.name}</p>
-                        <p className="text-xs text-on-surface-variant">ID: {client.clientId}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-medium text-sm text-primary">{client.contact}</p>
-                      <p className="text-xs text-on-surface-variant">{client.email}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="bg-surface-container px-2.5 py-1 rounded-full text-xs font-semibold">{client.invoices}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right font-medium text-sm">${client.totalBilled.toLocaleString()}.00</td>
-                  <td className="px-6 py-4 text-right font-medium text-sm">
-                    {client.outstanding > 0 ? (
-                      <span className="text-status-warning">${client.outstanding.toLocaleString()}.00</span>
-                    ) : (
-                      <span className="text-status-paid">$0.00</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-on-surface-variant hover:text-primary transition-colors">
-                      <MoreHorizontal className="w-5 h-5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="p-4 border-t border-border-subtle flex items-center justify-between">
-          <p className="text-xs text-on-surface-variant">Showing 1 to 4 of 124 clients</p>
-          <div className="flex gap-2">
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-border-subtle hover:bg-surface-container-low transition-colors disabled:opacity-50" disabled>
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded bg-secondary text-white font-bold text-xs">1</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-border-subtle hover:bg-surface-container-low font-bold text-xs">2</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-border-subtle hover:bg-surface-container-low font-bold text-xs">3</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-border-subtle hover:bg-surface-container-low transition-colors">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search clients..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-10 bg-surface-container-low border border-border-subtle rounded-lg pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
+          />
         </div>
       </div>
 
-      {/* Contextual Quick Actions */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-surface-container-lowest border border-border-subtle p-6 rounded-xl flex flex-col gap-4">
-          <h3 className="font-headline text-sm font-semibold">Client Growth Activity</h3>
-          <div className="h-48 relative overflow-hidden rounded-lg bg-surface-container-low group">
-            <div className="absolute inset-0 flex items-end justify-between px-6 pb-4">
-              <div className="w-8 bg-secondary/20 rounded-t-sm h-[40%] transition-all group-hover:h-[45%]"></div>
-              <div className="w-8 bg-secondary/30 rounded-t-sm h-[60%] transition-all group-hover:h-[65%]"></div>
-              <div className="w-8 bg-secondary/40 rounded-t-sm h-[35%] transition-all group-hover:h-[40%]"></div>
-              <div className="w-8 bg-secondary/50 rounded-t-sm h-[75%] transition-all group-hover:h-[80%]"></div>
-              <div className="w-8 bg-secondary/60 rounded-t-sm h-[55%] transition-all group-hover:h-[60%]"></div>
-              <div className="w-8 bg-secondary/70 rounded-t-sm h-[90%] transition-all group-hover:h-[95%]"></div>
-              <div className="w-8 bg-secondary/80 rounded-t-sm h-[65%] transition-all group-hover:h-[70%]"></div>
-              <div className="w-8 bg-secondary rounded-t-sm h-[85%] transition-all group-hover:h-[90%]"></div>
+      {/* Clients Table */}
+      <div className="bg-surface-container-lowest border border-border-subtle rounded-xl overflow-hidden">
+        {isLoading ? (
+          <div className="p-12 text-center">
+            <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
+            <p className="text-on-surface-variant mt-4 text-sm">Loading clients...</p>
+          </div>
+        ) : filteredClients && filteredClients.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-surface-container-low/50">
+                  <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Client</th>
+                  <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Contact</th>
+                  <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Phone</th>
+                  <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Website</th>
+                  <th className="px-6 py-3 border-b border-border-subtle"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-subtle">
+                {filteredClients.map((client) => (
+                  <tr key={client.id} className="hover:bg-surface-container/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary font-bold">
+                          {client.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{client.name}</p>
+                          {client.company && <p className="text-xs text-on-surface-variant">{client.company}</p>}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="text-sm">{client.contactPerson || '-'}</p>
+                        <p className="text-xs text-on-surface-variant">{client.email}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">
+                      {client.phone || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">
+                      {client.website || '-'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenModal(client)}
+                          className="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        {deleteConfirm === client.id ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDelete(client.id)}
+                              className="px-2 py-1 bg-error text-white text-xs rounded font-semibold hover:opacity-90"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(null)}
+                              className="px-2 py-1 border border-border-subtle text-xs rounded font-semibold hover:bg-surface-container"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeleteConfirm(client.id)}
+                            className="p-1.5 hover:bg-error/10 rounded-lg text-on-surface-variant hover:text-error transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="p-12 text-center">
+            <Users className="w-12 h-12 text-on-surface-variant mx-auto mb-4" />
+            <p className="text-on-surface-variant">
+              {searchQuery ? 'No clients found matching your search' : `No ${activeTab} clients yet.`}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-border-subtle sticky top-0 bg-white">
+              <h3 className="font-headline text-lg font-semibold">
+                {editingClient ? 'Edit Client' : 'Add Client'}
+              </h3>
+              <button onClick={handleCloseModal} className="text-on-surface-variant hover:text-primary">
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <div className="absolute top-4 left-4">
-              <p className="text-xs font-bold text-secondary uppercase tracking-widest">New Clients per Month</p>
-            </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                    placeholder="Company name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact Person</label>
+                  <input
+                    type="text"
+                    value={formData.contactPerson}
+                    onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                    placeholder="Primary contact"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email *</label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phone</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Company</label>
+                  <input
+                    type="text"
+                    value={formData.company}
+                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                    placeholder="Company name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Website</label>
+                  <input
+                    type="url"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Street Address</label>
+                <input
+                  type="text"
+                  value={formData.address.street}
+                  onChange={(e) => setFormData({ ...formData, address: { ...formData.address, street: e.target.value } })}
+                  className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                  placeholder="123 Main St"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">City</label>
+                  <input
+                    type="text"
+                    value={formData.address.city}
+                    onChange={(e) => setFormData({ ...formData, address: { ...formData.address, city: e.target.value } })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">State</label>
+                  <input
+                    type="text"
+                    value={formData.address.state}
+                    onChange={(e) => setFormData({ ...formData, address: { ...formData.address, state: e.target.value } })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">ZIP Code</label>
+                  <input
+                    type="text"
+                    value={formData.address.zipCode}
+                    onChange={(e) => setFormData({ ...formData, address: { ...formData.address, zipCode: e.target.value } })}
+                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Country</label>
+                <input
+                  type="text"
+                  value={formData.address.country}
+                  onChange={(e) => setFormData({ ...formData, address: { ...formData.address, country: e.target.value } })}
+                  className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                  placeholder="Country"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tax ID</label>
+                <input
+                  type="text"
+                  value={formData.taxId}
+                  onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
+                  className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
+                  placeholder="Tax registration number"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Notes</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="w-full border border-border-subtle rounded px-3 py-2 text-sm resize-none"
+                  rows={3}
+                  placeholder="Internal notes about this client..."
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="flex-1 h-10 border border-border-subtle rounded font-semibold text-sm hover:bg-surface-container transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createClient.isPending || updateClient.isPending}
+                  className="flex-1 h-10 bg-primary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {createClient.isPending || updateClient.isPending ? 'Saving...' : 'Save Client'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-        <div className="bg-primary text-white p-6 rounded-xl flex flex-col justify-between overflow-hidden relative">
-          <div className="z-10">
-            <h3 className="font-headline text-sm font-semibold mb-2">Automate Follow-ups</h3>
-            <p className="text-sm opacity-80 mb-6">Enable smart reminders to automatically nudge clients with outstanding balances.</p>
-            <button className="bg-white text-primary px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-colors">
-              Configure Settings
-            </button>
-          </div>
-          <span className="absolute -bottom-4 -right-4 text-[120px] opacity-10 select-none pointer-events-none">✨</span>
-        </div>
-      </section>
+      )}
     </div>
   );
 }

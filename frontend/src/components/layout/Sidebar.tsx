@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
-  Receipt,
+  Package,
   Users,
   Settings,
   Wallet,
@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Invoices', href: '/invoices', icon: FileText },
-  { name: 'Quotes', href: '/quotes', icon: Receipt },
   { name: 'Clients', href: '/clients', icon: Users },
+  { name: 'Products', href: '/products', icon: Package },
 ];
 
 export function Sidebar() {

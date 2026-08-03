@@ -19,6 +19,7 @@ export async function createClient(input: CreateClientInput): Promise<Client> {
   const newClient: Client = {
     id: `${clients.length + 1}`,
     ...input,
+    status: input.status || 'active',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

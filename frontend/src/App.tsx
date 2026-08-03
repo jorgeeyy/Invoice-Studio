@@ -8,8 +8,8 @@ import { Dashboard } from '@/pages/Dashboard';
 import { InvoiceList } from '@/pages/invoices/InvoiceList';
 import { CreateInvoice } from '@/pages/invoices/CreateInvoice';
 import { InvoiceDetail } from '@/pages/invoices/InvoiceDetail';
-import { QuoteList } from '@/pages/quotes/QuoteList';
 import { ClientList } from '@/pages/clients/ClientList';
+import { ProductList } from '@/pages/products/ProductList';
 import { BusinessSettings } from '@/pages/settings/BusinessSettings';
 
 const queryClient = new QueryClient();
@@ -30,8 +30,8 @@ function App() {
             <Route path="/invoices" element={<InvoiceList />} />
             <Route path="/invoices/create" element={<CreateInvoice />} />
             <Route path="/invoices/:id" element={<InvoiceDetail />} />
-            <Route path="/quotes" element={<QuoteList />} />
             <Route path="/clients" element={<ClientList />} />
+            <Route path="/products" element={<ProductList />} />
             <Route path="/settings" element={<BusinessSettings />} />
           </Route>
 
