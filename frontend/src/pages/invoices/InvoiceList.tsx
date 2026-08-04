@@ -12,12 +12,12 @@ import { useInvoices } from '@/hooks/useInvoices';
 import type { Currency } from '@/types';
 
 const statusColors: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-700',
-  final: 'bg-blue-100 text-blue-700',
+  draft: 'bg-status-draft/10 text-status-draft',
+  final: 'bg-status-draft/10 text-status-draft',
   sent: 'bg-status-sent/10 text-status-sent',
   paid: 'bg-status-paid/10 text-status-paid',
   overdue: 'bg-status-error/10 text-status-error',
-  cancelled: 'bg-gray-100 text-gray-500',
+  cancelled: 'bg-status-cancelled/10 text-status-cancelled',
 };
 
 const currencySymbol: Record<Currency, string> = {
@@ -52,7 +52,7 @@ export function InvoiceList() {
         </div>
         <Link
           to="/invoices/create"
-          className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-sm w-fit"
+          className="bg-secondary text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-sm w-fit"
         >
           <Plus className="w-5 h-5" />
           New Invoice
@@ -166,7 +166,7 @@ export function InvoiceList() {
             {!searchQuery && statusFilter === 'all' && (
               <Link
                 to="/invoices/create"
-                className="mt-4 inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+                className="mt-4 inline-flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
               >
                 <Plus className="w-4 h-4" /> Create Invoice
               </Link>

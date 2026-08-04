@@ -62,7 +62,7 @@ export function Dashboard() {
       description: 'Start a new invoice',
       icon: FileText,
       href: '/invoices/create',
-      color: 'bg-primary',
+      color: 'bg-secondary',
     },
     {
       name: 'Add Client',
