@@ -299,13 +299,12 @@ export function ClientList() {
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Name *</label>
                   <input
                     type="text"
-                    required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                     placeholder="Company name"
                   />
-                  {errors.name && <p className="text-error text-xs">{errors.name}</p>}
+                  {errors.name && <p className="text-status-error text-xs">{errors.name}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact Person</label>
@@ -323,13 +322,12 @@ export function ClientList() {
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email *</label>
                   <input
                     type="email"
-                    required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                     placeholder="email@example.com"
                   />
-                  {errors.email && <p className="text-error text-xs">{errors.email}</p>}
+                  {errors.email && <p className="text-status-error text-xs">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phone</label>

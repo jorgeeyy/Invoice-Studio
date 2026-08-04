@@ -145,7 +145,6 @@ export function BusinessSettings() {
                   <input
                     type="text"
                     name="name"
-                    required
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
@@ -157,7 +156,6 @@ export function BusinessSettings() {
                   <input
                     type="email"
                     name="email"
-                    required
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"

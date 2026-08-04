@@ -278,7 +278,7 @@ export function ProductList() {
                   className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   placeholder="e.g., Website Development"
                 />
-                {errors.name && <p className="text-error text-xs">{errors.name}</p>}
+                {errors.name && <p className="text-status-error text-xs">{errors.name}</p>}
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Description</label>
@@ -300,7 +300,7 @@ export function ProductList() {
                     onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value.replace(/[^0-9.]/g, '') })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   />
-                  {errors.unitPrice && <p className="text-error text-xs">{errors.unitPrice}</p>}
+                  {errors.unitPrice && <p className="text-status-error text-xs">{errors.unitPrice}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Currency</label>
@@ -328,7 +328,7 @@ export function ProductList() {
                     onChange={(e) => setFormData({ ...formData, taxRate: e.target.value.replace(/[^0-9.]/g, '') })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   />
-                  {errors.taxRate && <p className="text-error text-xs">{errors.taxRate}</p>}
+                  {errors.taxRate && <p className="text-status-error text-xs">{errors.taxRate}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Default Qty</label>
@@ -339,7 +339,7 @@ export function ProductList() {
                     onChange={(e) => setFormData({ ...formData, quantity: e.target.value.replace(/[^0-9]/g, '') })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   />
-                  {errors.quantity && <p className="text-error text-xs">{errors.quantity}</p>}
+                  {errors.quantity && <p className="text-status-error text-xs">{errors.quantity}</p>}
                 </div>
               </div>
               <div className="space-y-2">
