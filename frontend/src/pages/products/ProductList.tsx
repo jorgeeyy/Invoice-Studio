@@ -141,7 +141,7 @@ export function ProductList() {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-primary text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all"
+          className="bg-secondary text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all"
         >
           <Plus className="w-4 h-4" />
           Add Product
@@ -363,7 +363,7 @@ export function ProductList() {
                 <button
                   type="submit"
                   disabled={createProduct.isPending || updateProduct.isPending}
-                  className="flex-1 h-10 bg-primary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="flex-1 h-10 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {createProduct.isPending || updateProduct.isPending ? 'Saving...' : 'Save Product'}
                 </button>

@@ -6,7 +6,11 @@ import {
   Zap,
   Mail,
   Globe,
+  PenTool,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
 import type { LucideIcon } from 'lucide-react';
 
 const features: Array<{
@@ -73,13 +77,20 @@ const footerLinks = {
 };
 
 export function Landing() {
+  const { theme, toggleTheme } = useTheme();
+  
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
       <nav className="bg-surface/80 backdrop-blur-md sticky top-0 z-50 border-b border-border-subtle">
         <div className="flex justify-between items-center w-full px-8 py-4 max-w-[1440px] mx-auto">
           <div className="flex items-center gap-8">
-            <span className="text-xl font-bold text-primary tracking-tight font-headline">Freelance Pro</span>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center rounded-lg shadow-sm">
+                <PenTool className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-xl font-bold text-primary tracking-tight font-headline">Invoice Studio</span>
+            </div>
             <div className="hidden md:flex items-center gap-6">
               <a className="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5" href="#features">Features</a>
               <a className="text-sm font-medium text-on-surface-variant hover:text-secondary transition-colors" href="#pricing">Pricing</a>
@@ -87,8 +98,15 @@ export function Landing() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            >
+              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
             <Link to="/login" className="px-4 py-2 text-sm font-medium text-primary hover:text-secondary transition-colors">Sign In</Link>
-            <Link to="/signup" className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-80 transition-all">Get Started</Link>
+            <Link to="/signup" className="px-6 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all">Get Started</Link>
           </div>
         </div>
       </nav>
@@ -104,7 +122,7 @@ export function Landing() {
               Manage clients, track revenue, and get paid faster with systematic precision. The all-in-one financial toolkit designed for high-performance freelancers.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/signup" className="px-8 py-4 bg-primary text-white rounded-xl text-lg font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all">
+              <Link to="/signup" className="px-8 py-4 bg-secondary text-white rounded-xl text-lg font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all">
                 Get Started Free
               </Link>
               <button className="px-8 py-4 bg-surface-container-low border border-border-subtle rounded-xl text-lg font-semibold hover:bg-surface-container transition-all flex items-center justify-center gap-2">
@@ -249,7 +267,7 @@ export function Landing() {
           <div className="max-w-[800px] mx-auto text-center">
             <span className="text-secondary text-4xl mb-6 block">"</span>
             <blockquote className="text-xl italic mb-8 text-primary">
-              "Freelance Pro has completely streamlined my billing workflow. I used to spend hours every month chasing payments and manually calculating revenue. Now it's all automated, allowing me to focus entirely on building products for my clients."
+              "Invoice Studio has completely streamlined my billing workflow. I used to spend hours every month chasing payments and manually calculating revenue. Now it's all automated, allowing me to focus entirely on building products for my clients."
             </blockquote>
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-full overflow-hidden border border-border-subtle">
@@ -297,7 +315,7 @@ export function Landing() {
                   <button className={`w-full py-3 rounded-lg font-semibold text-sm transition-all ${
                     plan.popular 
                       ? 'bg-secondary text-white hover:opacity-90' 
-                      : 'border border-primary hover:bg-primary hover:text-white'
+                      : 'border border-secondary text-secondary hover:bg-secondary hover:text-white'
                   }`}>
                     {plan.cta}
                   </button>
@@ -308,17 +326,17 @@ export function Landing() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-24 px-8 relative overflow-hidden bg-primary">
+        <section className="py-24 px-8 relative overflow-hidden bg-secondary">
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
           </div>
           <div className="max-w-[1440px] mx-auto text-center relative z-10">
             <h2 className="font-headline text-[48px] md:text-[56px] text-white mb-8">Ready to get serious about your business?</h2>
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-12">
-              Join thousands of professionals who have optimized their financial operations with Freelance Pro. Start your 14-day free trial today.
+              Join thousands of professionals who have optimized their financial operations with Invoice Studio. Start your 14-day free trial today.
             </p>
-            <Link to="/signup" className="inline-block px-12 py-5 bg-surface-container-lowest text-primary rounded-xl text-lg font-semibold hover:scale-[1.05] active:scale-[0.98] transition-all shadow-lg">
-              Join Freelance Pro
+            <Link to="/signup" className="inline-block px-12 py-5 bg-white text-secondary rounded-xl text-lg font-semibold hover:scale-[1.05] active:scale-[0.98] transition-all shadow-lg">
+              Join Invoice Studio
             </Link>
             <p className="mt-6 text-sm text-white/50">No credit card required. Cancel anytime.</p>
           </div>
@@ -329,7 +347,7 @@ export function Landing() {
       <footer className="bg-surface-container-lowest border-t border-border-subtle">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-8 py-16 max-w-[1440px] mx-auto">
           <div className="col-span-1 md:col-span-1">
-            <span className="text-base font-semibold text-primary mb-4 block font-headline">Freelance Pro</span>
+            <span className="text-base font-semibold text-primary mb-4 block font-headline">Invoice Studio</span>
             <p className="text-sm text-on-surface-variant mb-6">
               Precision Fintech for the modern professional. Building the future of freelance financial infrastructure.
             </p>
@@ -354,7 +372,7 @@ export function Landing() {
           ))}
         </div>
         <div className="border-t border-border-subtle py-8 px-8 max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-on-surface-variant">© 2024 Freelance Pro. All rights reserved. Precision Fintech for the modern professional.</p>
+          <p className="text-sm text-on-surface-variant">© 2024 Invoice Studio. All rights reserved. Precision Fintech for the modern professional.</p>
           <div className="flex gap-6">
             <a className="text-sm text-on-surface-variant hover:text-primary" href="#">Legal</a>
             <a className="text-sm text-on-surface-variant hover:text-primary" href="#">Privacy Policy</a>

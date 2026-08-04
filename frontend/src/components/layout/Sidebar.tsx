@@ -5,7 +5,7 @@ import {
   Package,
   Users,
   Settings,
-  Wallet,
+  PenTool,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,12 +20,12 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex h-screen w-60 fixed left-0 top-0 bg-surface border-r border-border-subtle flex-col py-6 px-4 z-50">
       <div className="mb-10 px-2 flex items-center gap-3">
-        <div className="w-8 h-8 bg-primary flex items-center justify-center rounded">
-          <Wallet className="w-5 h-5 text-white" />
+        <div className="w-9 h-9 bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center rounded-xl shadow-md">
+          <PenTool className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="font-headline text-lg font-bold text-primary leading-tight">Freelance Pro</h1>
-          <p className="text-xs text-on-surface-variant">Standard Plan</p>
+          <h1 className="font-headline text-lg font-bold text-primary leading-tight">Invoice Studio</h1>
+          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">Creative Suite</p>
         </div>
       </div>
 
@@ -65,15 +65,13 @@ export function Sidebar() {
           <span className="text-sm">Settings</span>
         </NavLink>
 
-        <div className="mt-4 px-3 py-3 bg-surface-container-low rounded-xl border border-border-subtle flex items-center gap-3">
-          <img 
-            className="w-8 h-8 rounded-full object-cover" 
-            src="/images/avatar-george.png" 
-            alt="George Wilson" 
-          />
+        <div className="mt-4 px-3 py-3 bg-gradient-to-r from-secondary/5 to-transparent rounded-xl border border-secondary/10 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold text-sm">
+            G
+          </div>
           <div className="overflow-hidden">
             <p className="text-sm font-semibold truncate">George Wilson</p>
-            <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Freelancer</p>
+            <p className="text-[10px] text-secondary uppercase tracking-wider font-semibold">Studio</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Send, HelpCircle, Bell, X } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Send, HelpCircle, Bell, X, Landmark, Smartphone, Bitcoin, Sparkles, Check } from 'lucide-react';
 import { useClients, useCreateClient } from '@/hooks/useClients';
 import { useCreateInvoice } from '@/hooks/useInvoices';
 import { createInvoiceSchema, clientSchema } from '@/lib/validations';
@@ -505,11 +505,11 @@ export function CreateInvoice() {
             {/* Payment Method Selector */}
             <div className="flex flex-wrap gap-2 mb-6">
               {[
-                { id: 'bank', label: 'Bank Transfer', icon: '🏦' },
-                { id: 'momo', label: 'Mobile Money', icon: '📱' },
-                { id: 'crypto', label: 'Crypto', icon: '₿' },
-                { id: 'custom1', label: 'Custom', icon: '✨' },
-                { id: 'custom2', label: 'Custom 2', icon: '✨' },
+                { id: 'bank', label: 'Bank Transfer', icon: Landmark },
+                { id: 'momo', label: 'Mobile Money', icon: Smartphone },
+                { id: 'crypto', label: 'Crypto', icon: Bitcoin },
+                { id: 'custom1', label: 'Custom', icon: Sparkles },
+                { id: 'custom2', label: 'Custom 2', icon: Sparkles },
               ].map((method) => (
                 <button
                   key={method.id}
@@ -521,10 +521,10 @@ export function CreateInvoice() {
                       : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-border-subtle'
                   }`}
                 >
-                  <span className="text-lg">{method.icon}</span>
+                  <method.icon className="w-4 h-4" />
                   {method.label}
                   {activePaymentMethods.has(method.id) && (
-                    <span className="ml-1 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-xs">✓</span>
+                    <Check className="w-4 h-4 ml-1" />
                   )}
                 </button>
               ))}
@@ -534,7 +534,7 @@ export function CreateInvoice() {
             {activePaymentMethods.has('bank') && (
               <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">🏦</span>
+                  <Landmark className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Bank Transfer Details</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -552,7 +552,7 @@ export function CreateInvoice() {
             {activePaymentMethods.has('momo') && (
               <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">📱</span>
+                  <Smartphone className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Mobile Money Details</span>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -567,7 +567,7 @@ export function CreateInvoice() {
             {activePaymentMethods.has('crypto') && (
               <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">₿</span>
+                  <Bitcoin className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Crypto Wallet Details</span>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -582,7 +582,7 @@ export function CreateInvoice() {
             {activePaymentMethods.has('custom1') && (
               <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">✨</span>
+                  <Sparkles className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Custom Payment Method</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -596,7 +596,7 @@ export function CreateInvoice() {
             {activePaymentMethods.has('custom2') && (
               <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">✨</span>
+                  <Sparkles className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Another Payment Method</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -619,7 +619,7 @@ export function CreateInvoice() {
             <button 
               onClick={handleSubmit}
               disabled={createInvoice.isPending}
-              className="flex-1 h-11 bg-primary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
             >
               {createInvoice.isPending ? 'Sending...' : 'Send Invoice'}
               <Send className="w-4 h-4" />
@@ -781,7 +781,7 @@ export function CreateInvoice() {
                 <button
                   type="submit"
                   disabled={createClient.isPending}
-                  className="flex-1 h-11 bg-primary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity"
+                  className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity"
                 >
                   {createClient.isPending ? 'Creating...' : 'Create Client'}
                 </button>

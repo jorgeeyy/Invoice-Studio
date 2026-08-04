@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Wallet } from 'lucide-react';
+import { Eye, EyeOff, PenTool, Sun, Moon } from 'lucide-react';
 import { loginSchema } from '@/lib/validations';
+import { useTheme } from '@/components/ThemeProvider';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { theme, toggleTheme } = useTheme();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +31,21 @@ export function Login() {
       {/* Left side - Form */}
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm">
-          <div>
+          <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary flex items-center justify-center rounded">
-                <Wallet className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center rounded-xl shadow-md">
+                <PenTool className="w-6 h-6 text-white" />
               </div>
               <span className="font-headline text-2xl font-bold text-primary">Invoice Studio</span>
             </Link>
+            <button
+              onClick={toggleTheme}
+              className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            >
+              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
+          </div>
             <h2 className="mt-8 font-headline text-3xl font-bold tracking-tight text-primary">
               Sign in to your account
             </h2>
@@ -48,7 +58,6 @@ export function Login() {
                 Start a free trial
               </Link>
             </p>
-          </div>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div>
@@ -131,7 +140,7 @@ export function Login() {
             <div>
               <button
                 type="submit"
-                className="w-full bg-primary text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-all shadow-sm"
+                className="w-full bg-secondary text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-all shadow-sm"
               >
                 Sign in
               </button>
@@ -141,17 +150,17 @@ export function Login() {
       </div>
 
       {/* Right side - Brand */}
-      <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-center bg-surface-container-low">
+      <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-center bg-gradient-to-br from-secondary/10 via-surface to-secondary/5">
         <div className="mx-auto max-w-md px-8 text-center">
-          <div className="w-20 h-20 bg-primary flex items-center justify-center rounded-2xl mx-auto">
-            <Wallet className="w-12 h-12 text-white" />
+          <div className="w-20 h-20 bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center rounded-2xl mx-auto shadow-lg">
+            <PenTool className="w-10 h-10 text-white" />
           </div>
           <h3 className="mt-6 font-headline text-2xl font-bold text-primary">
-            Manage your invoices with ease
+            Create invoices that impress
           </h3>
           <p className="mt-4 text-on-surface-variant">
-            Create professional invoices, track payments, and grow your business
-            with our powerful invoicing platform.
+            Design beautiful, professional invoices with our intuitive studio tools. 
+            Your clients will love the experience.
           </p>
         </div>
       </div>

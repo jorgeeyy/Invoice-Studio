@@ -435,7 +435,7 @@ export function BusinessSettings() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-semibold hover:opacity-90 transition-all shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-secondary text-white font-semibold hover:opacity-90 transition-all shadow-sm"
           >
             <Save className="w-4 h-4" />
             Save Settings
