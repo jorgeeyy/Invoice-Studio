@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Search, Package, Edit2, Trash2, X } from 'lucide-react';
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from '@/hooks/useProducts';
+import { productSchema } from '@/lib/validations';
 import type { Product, Currency } from '@/types';
 
 const currencySymbol: Record<Currency, string> = {
@@ -12,23 +13,28 @@ const currencySymbol: Record<Currency, string> = {
   AUD: 'A$',
 };
 
+function parseNumber(value: string): number {
+  const num = parseFloat(value);
+  return isNaN(num) ? 0 : num;
+}
+
 interface ProductFormData {
   name: string;
   description: string;
-  unitPrice: number;
+  unitPrice: string;
   currency: Currency;
-  taxRate: number;
-  quantity: number;
+  taxRate: string;
+  quantity: string;
   category: string;
 }
 
 const defaultFormData: ProductFormData = {
   name: '',
   description: '',
-  unitPrice: 0,
+  unitPrice: '0',
   currency: 'USD',
-  taxRate: 10,
-  quantity: 1,
+  taxRate: '10',
+  quantity: '1',
   category: '',
 };
 
@@ -43,6 +49,7 @@ export function ProductList() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<ProductFormData>(defaultFormData);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const filteredProducts = products?.filter(
     (product) =>
@@ -57,16 +64,17 @@ export function ProductList() {
       setFormData({
         name: product.name,
         description: product.description || '',
-        unitPrice: product.unitPrice,
+        unitPrice: String(product.unitPrice),
         currency: product.currency,
-        taxRate: product.taxRate,
-        quantity: product.quantity,
+        taxRate: String(product.taxRate),
+        quantity: String(product.quantity),
         category: product.category || '',
       });
     } else {
       setEditingProduct(null);
       setFormData(defaultFormData);
     }
+    setErrors({});
     setShowModal(true);
   };
 
@@ -74,15 +82,39 @@ export function ProductList() {
     setShowModal(false);
     setEditingProduct(null);
     setFormData(defaultFormData);
+    setErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    const inputData = {
+      name: formData.name,
+      description: formData.description || undefined,
+      unitPrice: parseNumber(formData.unitPrice),
+      currency: formData.currency,
+      taxRate: parseNumber(formData.taxRate),
+      quantity: parseNumber(formData.quantity) || 1,
+      category: formData.category || undefined,
+    };
+
+    const result = productSchema.safeParse(inputData);
+
+    if (!result.success) {
+      const newErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        newErrors[issue.path[0] as string] = issue.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       if (editingProduct) {
-        await updateProduct.mutateAsync({ id: editingProduct.id, input: formData });
+        await updateProduct.mutateAsync({ id: editingProduct.id, input: result.data });
       } else {
-        await createProduct.mutateAsync(formData);
+        await createProduct.mutateAsync(result.data);
       }
       handleCloseModal();
     } catch (error) {
@@ -241,12 +273,12 @@ export function ProductList() {
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Name *</label>
                 <input
                   type="text"
-                  required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   placeholder="e.g., Website Development"
                 />
+                {errors.name && <p className="text-error text-xs">{errors.name}</p>}
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Description</label>
@@ -262,14 +294,13 @@ export function ProductList() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Price *</label>
                   <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
                     value={formData.unitPrice}
-                    onChange={(e) => setFormData({ ...formData, unitPrice: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value.replace(/[^0-9.]/g, '') })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   />
+                  {errors.unitPrice && <p className="text-error text-xs">{errors.unitPrice}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Currency</label>
@@ -291,23 +322,24 @@ export function ProductList() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tax Rate (%)</label>
                   <input
-                    type="number"
-                    min="0"
-                    max="100"
+                    type="text"
+                    inputMode="decimal"
                     value={formData.taxRate}
-                    onChange={(e) => setFormData({ ...formData, taxRate: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => setFormData({ ...formData, taxRate: e.target.value.replace(/[^0-9.]/g, '') })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   />
+                  {errors.taxRate && <p className="text-error text-xs">{errors.taxRate}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Default Qty</label>
                   <input
-                    type="number"
-                    min="1"
+                    type="text"
+                    inputMode="numeric"
                     value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value.replace(/[^0-9]/g, '') })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   />
+                  {errors.quantity && <p className="text-error text-xs">{errors.quantity}</p>}
                 </div>
               </div>
               <div className="space-y-2">

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Plus, Search, Users, Edit2, Trash2, X } from 'lucide-react';
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from '@/hooks/useClients';
-import type { Client, CreateClientInput } from '@/types';
+import { clientSchema } from '@/lib/validations';
+import type { Client } from '@/types';
 
 interface ClientFormData {
   name: string;
@@ -51,6 +52,7 @@ export function ClientList() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [formData, setFormData] = useState<ClientFormData>(defaultFormData);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const filteredClients = clients?.filter(
     (client) =>
@@ -78,6 +80,7 @@ export function ClientList() {
       setEditingClient(null);
       setFormData(defaultFormData);
     }
+    setErrors({});
     setShowModal(true);
   };
 
@@ -85,27 +88,41 @@ export function ClientList() {
     setShowModal(false);
     setEditingClient(null);
     setFormData(defaultFormData);
+    setErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const input: CreateClientInput = {
-        name: formData.name,
-        contactPerson: formData.contactPerson || undefined,
-        email: formData.email,
-        phone: formData.phone || undefined,
-        website: formData.website || undefined,
-        company: formData.company || undefined,
-        address: formData.address.street ? formData.address : undefined,
-        taxId: formData.taxId || undefined,
-        notes: formData.notes || undefined,
-      };
+    setErrors({});
 
+    const inputData = {
+      name: formData.name,
+      contactPerson: formData.contactPerson || undefined,
+      email: formData.email,
+      phone: formData.phone || undefined,
+      website: formData.website || undefined,
+      company: formData.company || undefined,
+      address: formData.address.street ? formData.address : undefined,
+      taxId: formData.taxId || undefined,
+      notes: formData.notes || undefined,
+    };
+
+    const result = clientSchema.safeParse(inputData);
+
+    if (!result.success) {
+      const newErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        newErrors[issue.path[0] as string] = issue.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
       if (editingClient) {
-        await updateClient.mutateAsync({ id: editingClient.id, input });
+        await updateClient.mutateAsync({ id: editingClient.id, input: result.data });
       } else {
-        await createClient.mutateAsync(input);
+        await createClient.mutateAsync(result.data);
       }
       handleCloseModal();
     } catch (error) {
@@ -288,6 +305,7 @@ export function ClientList() {
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                     placeholder="Company name"
                   />
+                  {errors.name && <p className="text-error text-xs">{errors.name}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact Person</label>
@@ -311,6 +329,7 @@ export function ClientList() {
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                     placeholder="email@example.com"
                   />
+                  {errors.email && <p className="text-error text-xs">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phone</label>

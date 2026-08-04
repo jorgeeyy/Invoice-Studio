@@ -60,7 +60,6 @@ export const mockInvoices: Invoice[] = [
     clientEmail: 'contact@acme.com',
     status: 'paid',
     issueDate: '2024-03-01',
-    dueDate: '2024-03-31',
     currency: 'USD',
     items: [
       { id: '1', description: 'Web Development Services', quantity: 1, unitPrice: 5000, discount: 0, taxRate: 10, amount: 5000 },
@@ -88,7 +87,6 @@ export const mockInvoices: Invoice[] = [
     clientEmail: 'hello@techstart.io',
     status: 'final',
     issueDate: '2024-03-10',
-    dueDate: '2024-04-09',
     currency: 'USD',
     items: [
       { id: '1', description: 'Mobile App Development', quantity: 1, unitPrice: 12000, discount: 0, taxRate: 10, amount: 12000 },
@@ -114,7 +112,6 @@ export const mockInvoices: Invoice[] = [
     clientEmail: 'projects@designstudio.com',
     status: 'overdue',
     issueDate: '2024-02-15',
-    dueDate: '2024-03-15',
     currency: 'USD',
     items: [
       { id: '1', description: 'Brand Identity Design', quantity: 1, unitPrice: 4500, discount: 0, taxRate: 10, amount: 4500 },
@@ -142,7 +139,6 @@ export const mockInvoices: Invoice[] = [
     clientEmail: 'contact@acme.com',
     status: 'draft',
     issueDate: '2024-03-20',
-    dueDate: '2024-04-19',
     currency: 'USD',
     items: [
       { id: '1', description: 'Consulting Services', quantity: 20, unitPrice: 150, discount: 0, taxRate: 10, amount: 3000 },
