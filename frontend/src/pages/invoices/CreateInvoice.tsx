@@ -58,22 +58,14 @@ export function CreateInvoice() {
   const [notes, setNotes] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
   const [paymentTerms, setPaymentTerms] = useState('Net 30');
-  const [bankName, setBankName] = useState('');
-  const [bankAccountName, setBankAccountName] = useState('');
-  const [bankAccountNumber, setBankAccountNumber] = useState('');
-  const [bankRoutingNumber, setBankRoutingNumber] = useState('');
-  const [bankIban, setBankIban] = useState('');
-  const [bankSwift, setBankSwift] = useState('');
-  const [momoProvider, setMomoProvider] = useState('');
-  const [momoNumber, setMomoNumber] = useState('');
-  const [momoName, setMomoName] = useState('');
-  const [cryptoNetwork, setCryptoNetwork] = useState('');
-  const [cryptoAddress, setCryptoAddress] = useState('');
-  const [cryptoLabel, setCryptoLabel] = useState('');
-  const [customPayment1Label, setCustomPayment1Label] = useState('');
-  const [customPayment1Value, setCustomPayment1Value] = useState('');
-  const [customPayment2Label, setCustomPayment2Label] = useState('');
-  const [customPayment2Value, setCustomPayment2Value] = useState('');
+  const [activePaymentMethods, setActivePaymentMethods] = useState<Set<string>>(new Set());
+  const [paymentData, setPaymentData] = useState({
+    bank: { name: '', accountName: '', accountNumber: '', routingNumber: '', iban: '', swift: '' },
+    momo: { provider: '', number: '', name: '' },
+    crypto: { network: '', address: '', label: '' },
+    custom1: { label: '', value: '' },
+    custom2: { label: '', value: '' },
+  });
   const [discount, setDiscount] = useState('0');
   const [discountType, setDiscountType] = useState<DiscountType>('percentage');
   const [taxRate, setTaxRate] = useState('10');
@@ -104,6 +96,25 @@ export function CreateInvoice() {
     const newItems = [...items];
     newItems[index] = { ...newItems[index], [field]: value };
     setItems(newItems);
+  };
+
+  const togglePaymentMethod = (method: string) => {
+    setActivePaymentMethods((prev) => {
+      const next = new Set(prev);
+      if (next.has(method)) {
+        next.delete(method);
+      } else {
+        next.add(method);
+      }
+      return next;
+    });
+  };
+
+  const updatePaymentData = (method: string, field: string, value: string) => {
+    setPaymentData((prev) => ({
+      ...prev,
+      [method]: { ...prev[method as keyof typeof prev], [field]: value },
+    }));
   };
 
   const subtotal = items.reduce((sum, item) => {
@@ -489,197 +500,115 @@ export function CreateInvoice() {
 
           {/* Payment Details */}
           <div className="p-6 border-t border-border-subtle">
-            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-4">Payment Details</h3>
+            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-4">How should clients pay you?</h3>
             
-            {/* Bank Transfer */}
-            <div className="space-y-4 mb-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Bank Name</label>
-                  <input 
-                    type="text"
-                    value={bankName}
-                    onChange={(e) => setBankName(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="e.g. Chase Bank"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Account Name</label>
-                  <input 
-                    type="text"
-                    value={bankAccountName}
-                    onChange={(e) => setBankAccountName(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="Account holder name"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Account Number</label>
-                  <input 
-                    type="text"
-                    value={bankAccountNumber}
-                    onChange={(e) => setBankAccountNumber(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="Account number"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Routing / Sort Code</label>
-                  <input 
-                    type="text"
-                    value={bankRoutingNumber}
-                    onChange={(e) => setBankRoutingNumber(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="Routing number"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">IBAN</label>
-                  <input 
-                    type="text"
-                    value={bankIban}
-                    onChange={(e) => setBankIban(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="International bank account number"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">SWIFT / BIC</label>
-                  <input 
-                    type="text"
-                    value={bankSwift}
-                    onChange={(e) => setBankSwift(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="SWIFT code"
-                  />
-                </div>
-              </div>
+            {/* Payment Method Selector */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {[
+                { id: 'bank', label: 'Bank Transfer', icon: '🏦' },
+                { id: 'momo', label: 'Mobile Money', icon: '📱' },
+                { id: 'crypto', label: 'Crypto', icon: '₿' },
+                { id: 'custom1', label: 'Custom', icon: '✨' },
+                { id: 'custom2', label: 'Custom 2', icon: '✨' },
+              ].map((method) => (
+                <button
+                  key={method.id}
+                  type="button"
+                  onClick={() => togglePaymentMethod(method.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                    activePaymentMethods.has(method.id)
+                      ? 'bg-secondary text-on-secondary shadow-md scale-105'
+                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-border-subtle'
+                  }`}
+                >
+                  <span className="text-lg">{method.icon}</span>
+                  {method.label}
+                  {activePaymentMethods.has(method.id) && (
+                    <span className="ml-1 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-xs">✓</span>
+                  )}
+                </button>
+              ))}
             </div>
 
-            {/* Mobile Money */}
-            <div className="space-y-4 mb-6">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Provider</label>
-                  <input 
-                    type="text"
-                    value={momoProvider}
-                    onChange={(e) => setMomoProvider(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="MTN, M-Pesa, etc."
-                  />
+            {/* Bank Transfer Fields */}
+            {activePaymentMethods.has('bank') && (
+              <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">🏦</span>
+                  <span className="font-semibold text-sm">Bank Transfer Details</span>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Number</label>
-                  <input 
-                    type="text"
-                    value={momoNumber}
-                    onChange={(e) => setMomoNumber(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="+233 XX XXX XXXX"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Account Name</label>
-                  <input 
-                    type="text"
-                    value={momoName}
-                    onChange={(e) => setMomoName(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="Account holder name"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="text" value={paymentData.bank.name} onChange={(e) => updatePaymentData('bank', 'name', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Bank name" />
+                  <input type="text" value={paymentData.bank.accountName} onChange={(e) => updatePaymentData('bank', 'accountName', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Account name" />
+                  <input type="text" value={paymentData.bank.accountNumber} onChange={(e) => updatePaymentData('bank', 'accountNumber', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Account number" />
+                  <input type="text" value={paymentData.bank.routingNumber} onChange={(e) => updatePaymentData('bank', 'routingNumber', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Routing / Sort code" />
+                  <input type="text" value={paymentData.bank.iban} onChange={(e) => updatePaymentData('bank', 'iban', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="IBAN (optional)" />
+                  <input type="text" value={paymentData.bank.swift} onChange={(e) => updatePaymentData('bank', 'swift', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="SWIFT / BIC (optional)" />
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Crypto */}
-            <div className="space-y-4 mb-6">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Network</label>
-                  <input 
-                    type="text"
-                    value={cryptoNetwork}
-                    onChange={(e) => setCryptoNetwork(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="BTC, ETH, USDT, etc."
-                  />
+            {/* Mobile Money Fields */}
+            {activePaymentMethods.has('momo') && (
+              <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">📱</span>
+                  <span className="font-semibold text-sm">Mobile Money Details</span>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Wallet Address</label>
-                  <input 
-                    type="text"
-                    value={cryptoAddress}
-                    onChange={(e) => setCryptoAddress(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="0x..."
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Label</label>
-                  <input 
-                    type="text"
-                    value={cryptoLabel}
-                    onChange={(e) => setCryptoLabel(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="e.g. Business Wallet"
-                  />
+                <div className="grid grid-cols-3 gap-3">
+                  <input type="text" value={paymentData.momo.provider} onChange={(e) => updatePaymentData('momo', 'provider', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="MTN, M-Pesa..." />
+                  <input type="text" value={paymentData.momo.number} onChange={(e) => updatePaymentData('momo', 'number', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="+233 XX XXX XXXX" />
+                  <input type="text" value={paymentData.momo.name} onChange={(e) => updatePaymentData('momo', 'name', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Account name" />
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Custom Payment Methods */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Custom Label</label>
-                  <input 
-                    type="text"
-                    value={customPayment1Label}
-                    onChange={(e) => setCustomPayment1Label(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="e.g. PayPal, Venmo"
-                  />
+            {/* Crypto Fields */}
+            {activePaymentMethods.has('crypto') && (
+              <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">₿</span>
+                  <span className="font-semibold text-sm">Crypto Wallet Details</span>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Value</label>
-                  <input 
-                    type="text"
-                    value={customPayment1Value}
-                    onChange={(e) => setCustomPayment1Value(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="email@paypal.me"
-                  />
+                <div className="grid grid-cols-3 gap-3">
+                  <input type="text" value={paymentData.crypto.network} onChange={(e) => updatePaymentData('crypto', 'network', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="BTC, ETH, USDT..." />
+                  <input type="text" value={paymentData.crypto.address} onChange={(e) => updatePaymentData('crypto', 'address', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest col-span-2" placeholder="Wallet address" />
+                  <input type="text" value={paymentData.crypto.label} onChange={(e) => updatePaymentData('crypto', 'label', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Label (optional)" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Custom Label</label>
-                  <input 
-                    type="text"
-                    value={customPayment2Label}
-                    onChange={(e) => setCustomPayment2Label(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="e.g. Wise, Stripe"
-                  />
+            )}
+
+            {/* Custom 1 Fields */}
+            {activePaymentMethods.has('custom1') && (
+              <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">✨</span>
+                  <span className="font-semibold text-sm">Custom Payment Method</span>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Value</label>
-                  <input 
-                    type="text"
-                    value={customPayment2Value}
-                    onChange={(e) => setCustomPayment2Value(e.target.value)}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                    placeholder="Payment link or ID"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="text" value={paymentData.custom1.label} onChange={(e) => updatePaymentData('custom1', 'label', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="e.g. PayPal, Venmo, Wise" />
+                  <input type="text" value={paymentData.custom1.value} onChange={(e) => updatePaymentData('custom1', 'value', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Email, link, or ID" />
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Custom 2 Fields */}
+            {activePaymentMethods.has('custom2') && (
+              <div className="bg-surface-container-low rounded-xl p-4 mb-4 border border-border-subtle animate-in slide-in-from-top-2 duration-200">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">✨</span>
+                  <span className="font-semibold text-sm">Another Payment Method</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="text" value={paymentData.custom2.label} onChange={(e) => updatePaymentData('custom2', 'label', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="e.g. Stripe, Cash App" />
+                  <input type="text" value={paymentData.custom2.value} onChange={(e) => updatePaymentData('custom2', 'value', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Payment link or ID" />
+                </div>
+              </div>
+            )}
+
+            {activePaymentMethods.size === 0 && (
+              <p className="text-on-surface-variant text-xs text-center py-4">Select a payment method above to add details</p>
+            )}
           </div>
 
           {/* Sticky Actions */}
@@ -722,11 +651,11 @@ export function CreateInvoice() {
             notes={notes}
             paymentTerms={paymentTerms}
             paymentDetails={{
-              bank: { name: bankName, accountName: bankAccountName, accountNumber: bankAccountNumber, routingNumber: bankRoutingNumber, iban: bankIban, swift: bankSwift },
-              momo: { provider: momoProvider, number: momoNumber, name: momoName },
-              crypto: { network: cryptoNetwork, address: cryptoAddress, label: cryptoLabel },
-              custom1: { label: customPayment1Label, value: customPayment1Value },
-              custom2: { label: customPayment2Label, value: customPayment2Value },
+              bank: paymentData.bank,
+              momo: paymentData.momo,
+              crypto: paymentData.crypto,
+              custom1: paymentData.custom1,
+              custom2: paymentData.custom2,
             }}
             currencySymbol={currencySymbol}
           />
