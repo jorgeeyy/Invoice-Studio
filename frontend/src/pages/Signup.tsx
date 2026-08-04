@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Wallet } from 'lucide-react';
+import { signupSchema } from '@/lib/validations';
 
 export function Signup() {
   const [name, setName] = useState('');
@@ -8,10 +9,21 @@ export function Signup() {
   const [password, setPassword] = useState('');
   const [company, setCompany] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Signup:', { name, email, password, company });
+    setErrors({});
+    const result = signupSchema.safeParse({ name, email, password, company: company || undefined });
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((err) => {
+        fieldErrors[err.path[0] as string] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    console.log('Signup:', result.data);
   };
 
   return (
@@ -24,7 +36,7 @@ export function Signup() {
               <div className="w-10 h-10 bg-primary flex items-center justify-center rounded">
                 <Wallet className="w-6 h-6 text-white" />
               </div>
-              <span className="font-headline text-2xl font-bold text-primary">Freelance Pro</span>
+              <span className="font-headline text-2xl font-bold text-primary">Invoice Studio</span>
             </Link>
             <h2 className="mt-8 font-headline text-3xl font-bold tracking-tight text-primary">
               Create your account
@@ -53,11 +65,11 @@ export function Signup() {
                 name="name"
                 type="text"
                 autoComplete="name"
-                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
               />
+              {errors.name && <p className="text-status-error text-xs mt-1">{errors.name}</p>}
             </div>
 
             <div>
@@ -72,11 +84,11 @@ export function Signup() {
                 name="email"
                 type="email"
                 autoComplete="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
               />
+              {errors.email && <p className="text-status-error text-xs mt-1">{errors.email}</p>}
             </div>
 
             <div>
@@ -110,7 +122,6 @@ export function Signup() {
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 pr-10 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
@@ -127,6 +138,7 @@ export function Signup() {
                   )}
                 </button>
               </div>
+              {errors.password && <p className="text-status-error text-xs mt-1">{errors.password}</p>}
               <p className="mt-2 text-xs text-on-surface-variant">
                 Must be at least 8 characters
               </p>
@@ -174,7 +186,7 @@ export function Signup() {
             Start invoicing in minutes
           </h3>
           <p className="mt-4 text-on-surface-variant">
-            Join thousands of freelancers and businesses who trust Freelance Pro
+            Join thousands of freelancers and businesses who trust Invoice Studio
             to manage their invoicing.
           </p>
         </div>

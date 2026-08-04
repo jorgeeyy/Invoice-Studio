@@ -116,7 +116,7 @@ export function Landing() {
           
           {/* Dashboard Preview */}
           <div className="max-w-[1200px] mx-auto relative">
-            <div className="bg-white border border-border-subtle rounded-2xl overflow-hidden shadow-xl" style={{ boxShadow: '0 0 80px -20px rgba(0, 81, 213, 0.15)' }}>
+            <div className="bg-surface-container-lowest border border-border-subtle rounded-2xl overflow-hidden shadow-xl" style={{ boxShadow: '0 0 80px -20px rgba(0, 81, 213, 0.15)' }}>
               <img 
                 alt="Professional fintech dashboard in a modern home office" 
                 className="w-full h-full object-cover" 
@@ -127,7 +127,7 @@ export function Landing() {
         </section>
 
         {/* Social Proof */}
-        <section className="py-12 border-y border-border-subtle bg-white">
+        <section className="py-12 border-y border-border-subtle bg-surface-container-lowest">
           <div className="max-w-[1440px] mx-auto px-8">
             <p className="text-center text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-8">Trusted by 10,000+ top-tier freelancers</p>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
@@ -147,7 +147,7 @@ export function Landing() {
               {features.map((feature) => (
                 <div 
                   key={feature.name}
-                  className="p-6 bg-white border border-border-subtle rounded-2xl flex flex-col gap-4 hover:border-secondary transition-all duration-200"
+                  className="p-6 bg-surface-container-lowest border border-border-subtle rounded-2xl flex flex-col gap-4 hover:border-secondary transition-all duration-200"
                   onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
                 >
@@ -174,18 +174,18 @@ export function Landing() {
         <section className="py-24 bg-surface-container-low border-y border-border-subtle px-8">
           <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="order-2 lg:order-1">
-              <div className="bg-white rounded-2xl border border-border-subtle overflow-hidden shadow-sm">
+              <div className="bg-surface-container-lowest rounded-2xl border border-border-subtle overflow-hidden shadow-sm">
                 <div className="flex border-b border-border-subtle">
                   <div className="w-1/3 p-6 border-r border-border-subtle bg-surface">
                     <h4 className="text-xs font-bold text-on-surface-variant mb-6 uppercase tracking-wider">Editor</h4>
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <div className="h-2 w-12 bg-outline-variant rounded"></div>
-                        <div className="h-8 w-full bg-white border border-border-subtle rounded"></div>
+                        <div className="h-8 w-full bg-surface-container-lowest border border-border-subtle rounded"></div>
                       </div>
                       <div className="space-y-1">
                         <div className="h-2 w-20 bg-outline-variant rounded"></div>
-                        <div className="h-24 w-full bg-white border border-border-subtle rounded"></div>
+                        <div className="h-24 w-full bg-surface-container-lowest border border-border-subtle rounded"></div>
                       </div>
                       <div className="space-y-1">
                         <div className="h-2 w-16 bg-outline-variant rounded"></div>
@@ -272,7 +272,7 @@ export function Landing() {
               {pricingPlans.map((plan) => (
                 <div 
                   key={plan.name}
-                  className={`p-8 bg-white rounded-2xl flex flex-col relative ${
+                  className={`p-8 bg-surface-container-lowest rounded-2xl flex flex-col relative ${
                     plan.popular ? 'border-2 border-secondary' : 'border border-border-subtle'
                   }`}
                 >
@@ -317,7 +317,7 @@ export function Landing() {
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-12">
               Join thousands of professionals who have optimized their financial operations with Freelance Pro. Start your 14-day free trial today.
             </p>
-            <Link to="/signup" className="inline-block px-12 py-5 bg-white text-primary rounded-xl text-lg font-semibold hover:scale-[1.05] active:scale-[0.98] transition-all shadow-lg">
+            <Link to="/signup" className="inline-block px-12 py-5 bg-surface-container-lowest text-primary rounded-xl text-lg font-semibold hover:scale-[1.05] active:scale-[0.98] transition-all shadow-lg">
               Join Freelance Pro
             </Link>
             <p className="mt-6 text-sm text-white/50">No credit card required. Cancel anytime.</p>

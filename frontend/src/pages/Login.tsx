@@ -1,15 +1,27 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Wallet } from 'lucide-react';
+import { loginSchema } from '@/lib/validations';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login:', { email, password });
+    setErrors({});
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((err) => {
+        fieldErrors[err.path[0] as string] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    console.log('Login:', result.data);
   };
 
   return (
@@ -22,7 +34,7 @@ export function Login() {
               <div className="w-10 h-10 bg-primary flex items-center justify-center rounded">
                 <Wallet className="w-6 h-6 text-white" />
               </div>
-              <span className="font-headline text-2xl font-bold text-primary">Freelance Pro</span>
+              <span className="font-headline text-2xl font-bold text-primary">Invoice Studio</span>
             </Link>
             <h2 className="mt-8 font-headline text-3xl font-bold tracking-tight text-primary">
               Sign in to your account
@@ -51,11 +63,11 @@ export function Login() {
                 name="email"
                 type="email"
                 autoComplete="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
               />
+              {errors.email && <p className="text-status-error text-xs mt-1">{errors.email}</p>}
             </div>
 
             <div>
@@ -71,7 +83,6 @@ export function Login() {
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 pr-10 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
@@ -88,6 +99,7 @@ export function Login() {
                   )}
                 </button>
               </div>
+              {errors.password && <p className="text-status-error text-xs mt-1">{errors.password}</p>}
             </div>
 
             <div className="flex items-center justify-between">

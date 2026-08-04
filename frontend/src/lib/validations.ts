@@ -82,7 +82,21 @@ export const businessSettingsSchema = z.object({
   paymentInstructions: z.string().optional(),
 });
 
+export const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+export const signupSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  company: z.string().optional(),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
 export type CreateInvoiceFormData = z.infer<typeof createInvoiceSchema>;
 export type ClientFormData = z.infer<typeof clientSchema>;
 export type ProductFormData = z.infer<typeof productSchema>;
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type SignupFormData = z.infer<typeof signupSchema>;

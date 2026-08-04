@@ -1,6 +1,9 @@
-import { Bell, HelpCircle, Search } from 'lucide-react';
+import { Bell, HelpCircle, Search, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
 
 export function Header() {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <header className="h-14 bg-surface-bright border-b border-border-subtle flex items-center justify-between px-4">
       <div className="flex items-center gap-4 flex-1">
@@ -15,6 +18,13 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-3">
+        <button 
+          onClick={toggleTheme}
+          className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
+          title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        >
+          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+        </button>
         <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant">
           <Bell className="w-5 h-5" />
         </button>

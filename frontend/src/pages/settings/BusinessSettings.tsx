@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Save, Upload, Building2, FileText, Palette, User, Shield } from 'lucide-react';
+import { businessSettingsSchema } from '@/lib/validations';
 import type { Currency, PaymentTerms } from '@/types';
 
 interface SettingsFormData {
@@ -55,6 +56,7 @@ export function BusinessSettings() {
   const [formData, setFormData] = useState<SettingsFormData>(defaultFormData);
   const [activeTab, setActiveTab] = useState<'business' | 'invoices' | 'branding' | 'profile' | 'security'>('business');
   const [saved, setSaved] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -75,8 +77,17 @@ export function BusinessSettings() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Connect to API
-    console.log('Save settings:', formData);
+    setErrors({});
+    const result = businessSettingsSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((err) => {
+        fieldErrors[err.path.join('.')] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    console.log('Save settings:', result.data);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -139,6 +150,7 @@ export function BusinessSettings() {
                     onChange={handleChange}
                     className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
                   />
+                  {errors.name && <p className="text-status-error text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-on-surface-variant mb-1">Email *</label>
@@ -150,6 +162,7 @@ export function BusinessSettings() {
                     onChange={handleChange}
                     className="w-full bg-surface-container-low border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
                   />
+                  {errors.email && <p className="text-status-error text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-on-surface-variant mb-1">Phone</label>
