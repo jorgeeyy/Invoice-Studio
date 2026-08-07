@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Download,
-  MoreHorizontal,
   FileText,
   Copy,
   Trash2,
@@ -45,16 +44,8 @@ export function InvoiceDetail() {
   const duplicateInvoice = useDuplicateInvoice();
   const { success, error: toastError } = useToast();
 
-  const [showMenu, setShowMenu] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [downloading, setDownloading] = useState(false);
-
-  useEffect(() => {
-    if (!showMenu) return;
-    const close = () => setShowMenu(false);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
-  }, [showMenu]);
 
   if (isLoading) {
     return (
@@ -115,7 +106,6 @@ export function InvoiceDetail() {
   const handleReopen = async () => {
     try {
       await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'draft' } });
-      setShowMenu(false);
       success(`Invoice ${invoice.invoiceNumber} reopened as draft`);
     } catch (err) {
       toastError('Failed to reopen invoice');
@@ -124,7 +114,6 @@ export function InvoiceDetail() {
   };
 
   const handleDuplicate = async () => {
-    setShowMenu(false);
     try {
       const dup = await duplicateInvoice.mutateAsync(invoice.id);
       success(`Invoice ${dup.invoiceNumber} created`);
@@ -188,67 +177,46 @@ export function InvoiceDetail() {
                 <PencilLine className="w-4 h-4" />
                 Edit Draft
               </Link>
-              <button
-                onClick={handleSetFinal}
-                disabled={updateInvoice.isPending}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-secondary text-white font-semibold text-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
-              >
-                {updateInvoice.isPending ? 'Finalizing...' : 'Mark as Final'}
-              </button>
             </>
           )}
-          <div className="relative">
+          {invoice.status === 'final' && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMenu((prev) => !prev);
-              }}
-              aria-label="More actions"
-              aria-expanded={showMenu}
-              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
+              onClick={handleReopen}
+              disabled={updateInvoice.isPending}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50"
             >
-              <MoreHorizontal className="w-5 h-5" />
+              <PencilLine className="w-4 h-4" />
+              {updateInvoice.isPending ? 'Opening...' : 'Reopen as Draft'}
             </button>
-            {showMenu && (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 top-full mt-1 w-56 bg-surface-container-lowest rounded-lg shadow-lg border border-border-subtle py-1 z-20 overflow-hidden"
-              >
-                  {invoice.status === 'final' && (
-                    <button
-                      onClick={handleReopen}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
-                    >
-                      <PencilLine className="w-4 h-4 text-on-surface-variant" />
-                      Reopen as Draft
-                    </button>
-                  )}
-                  <button
-                    onClick={handleDuplicate}
-                    disabled={duplicateInvoice.isPending}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50"
-                  >
-                    {duplicateInvoice.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-on-surface-variant" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-on-surface-variant" />
-                    )}
-                    {duplicateInvoice.isPending ? 'Duplicating...' : 'Duplicate'}
-                  </button>
-                  <hr className="my-1 border-border-subtle" />
-                  <button
-                    onClick={() => {
-                      setDeleteConfirm(true);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-status-error hover:bg-status-error/10 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </button>
-                </div>
+          )}
+          <button
+            onClick={handleDuplicate}
+            disabled={duplicateInvoice.isPending}
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-60"
+          >
+            {duplicateInvoice.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Copy className="w-4 h-4" />
             )}
-          </div>
+            {duplicateInvoice.isPending ? 'Duplicating...' : 'Duplicate'}
+          </button>
+          {invoice.status === 'draft' && (
+            <button
+              onClick={handleSetFinal}
+              disabled={updateInvoice.isPending}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-secondary text-white dark:text-on-surface-variant font-semibold text-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
+            >
+              {updateInvoice.isPending ? 'Finalizing...' : 'Mark as Final'}
+            </button>
+          )}
+          <button
+            onClick={() => setDeleteConfirm(true)}
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-status-error text-white font-semibold text-sm hover:opacity-90 transition-opacity"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </button>
         </div>
       </div>
 
