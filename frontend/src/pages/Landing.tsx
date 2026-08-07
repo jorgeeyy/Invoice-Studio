@@ -46,30 +46,6 @@ const features: Array<{
   },
 ];
 
-const pricingPlans = [
-  {
-    name: 'Starter',
-    price: '$0',
-    features: ['5 Invoices/month', 'Basic CRM', 'Revenue Tracking'],
-    cta: 'Select Plan',
-    popular: false,
-  },
-  {
-    name: 'Professional',
-    price: '$24',
-    features: ['Unlimited Invoices', 'Advanced Analytics', 'Payment Automation', 'Custom Branding'],
-    cta: 'Select Plan',
-    popular: true,
-  },
-  {
-    name: 'Agency',
-    price: '$59',
-    features: ['Multi-user Access', 'Team Analytics', 'White-label Solution'],
-    cta: 'Select Plan',
-    popular: false,
-  },
-];
-
 const footerLinks = {
   Product: ['Invoicing', 'Reporting', 'CRM', 'Integrations'],
   Company: ['About Us', 'Careers', 'Press', 'Contact'],
@@ -93,7 +69,6 @@ export function Landing() {
             </div>
             <div className="hidden md:flex items-center gap-6">
               <a className="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5" href="#features">Features</a>
-              <a className="text-sm font-medium text-on-surface-variant hover:text-secondary transition-colors" href="#pricing">Pricing</a>
               <a className="text-sm font-medium text-on-surface-variant hover:text-secondary transition-colors" href="#about">About</a>
             </div>
           </div>
@@ -275,52 +250,6 @@ export function Landing() {
               </div>
               <p className="font-semibold text-primary">Alex Rivera</p>
               <p className="text-xs text-on-surface-variant uppercase tracking-widest">Senior Full-Stack Developer</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing */}
-        <section id="pricing" className="py-16 sm:py-24 bg-surface px-4 sm:px-8">
-          <div className="max-w-[1440px] mx-auto">
-            <div className="text-center mb-12 sm:mb-16">
-              <h2 className="font-headline text-3xl sm:text-[40px] mb-4">Straightforward Pricing</h2>
-              <p className="text-base sm:text-lg text-on-surface-variant">Choose the plan that fits your current business scale.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1100px] mx-auto">
-              {pricingPlans.map((plan) => (
-                <div 
-                  key={plan.name}
-                  className={`p-8 bg-surface-container-lowest rounded-2xl flex flex-col relative ${
-                    plan.popular ? 'border-2 border-secondary' : 'border border-border-subtle'
-                  }`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                      Most Popular
-                    </div>
-                  )}
-                  <h3 className="font-headline text-base font-semibold mb-2">{plan.name}</h3>
-                  <div className="mb-6">
-                    <span className="text-[32px] font-bold">{plan.price}</span>
-                    <span className="text-on-surface-variant text-sm">/month</span>
-                  </div>
-                  <ul className="space-y-4 mb-8 flex-grow">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm text-on-surface-variant">
-                        <CheckCircle className={`w-4 h-4 ${plan.popular ? 'text-secondary' : ''}`} />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className={`w-full py-3 rounded-lg font-semibold text-sm transition-all ${
-                    plan.popular 
-                      ? 'bg-secondary text-white hover:opacity-90' 
-                      : 'border border-secondary text-secondary hover:bg-secondary hover:text-white'
-                  }`}>
-                    {plan.cta}
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
         </section>
