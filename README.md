@@ -46,17 +46,6 @@ The backend runs Alembic migrations automatically on startup. For the manual wor
 - Backend: `cd backend && uv run pytest`
 - Frontend lint: `cd frontend && npm run lint`
 
-## Screenshots
-
-| | |
-| :-: | :-: |
-| ![Landing page](docs/screenshots/01-landing.png) | ![Dashboard](docs/screenshots/02-dashboard.png) |
-| Landing | Dashboard |
-| ![Invoices list](docs/screenshots/03-invoices.png) | ![Invoice detail](docs/screenshots/04-invoice-detail.png) |
-| Invoices | Invoice detail (full-width) |
-| ![Create invoice](docs/screenshots/05-create-invoice.png) | |
-| Create invoice — editor + live preview | |
-
 ## Feature highlights
 
 - Client, product, and invoice management with search, tabs, and archiving
