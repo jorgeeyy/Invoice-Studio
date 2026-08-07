@@ -1,12 +1,24 @@
-import { Bell, HelpCircle, Search, Sun, Moon } from 'lucide-react';
+import { Bell, HelpCircle, PanelLeft, PanelLeftClose, Search, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 
-export function Header() {
+interface HeaderProps {
+  onToggleSidebar: () => void;
+  sidebarCollapsed: boolean;
+}
+
+export function Header({ onToggleSidebar, sidebarCollapsed }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="h-14 bg-surface-bright border-b border-border-subtle flex items-center justify-between px-4">
       <div className="flex items-center gap-4 flex-1">
+        <button
+          onClick={onToggleSidebar}
+          className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
+          title={sidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+        >
+          {sidebarCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+        </button>
         <div className="relative w-full max-w-md hidden sm:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant w-5 h-5" />
           <input

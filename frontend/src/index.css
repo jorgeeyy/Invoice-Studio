@@ -30,6 +30,7 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+  --font-serif: 'Playfair Display', Georgia, serif;
 }
 
 .dark {
