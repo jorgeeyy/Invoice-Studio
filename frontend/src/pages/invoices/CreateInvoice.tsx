@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Send, HelpCircle, Bell, X, Landmark, Smartphone, Bitcoin, Sparkles, Check } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Send, HelpCircle, Bell, X, Landmark, Smartphone, Bitcoin, Sparkles, Check, Package, Search } from 'lucide-react';
 import { useClients, useCreateClient } from '@/hooks/useClients';
+import { useProducts } from '@/hooks/useProducts';
 import { useCreateInvoice } from '@/hooks/useInvoices';
 import { createInvoiceSchema, clientSchema } from '@/lib/validations';
 import { InvoicePreview } from '@/components/InvoicePreview';
@@ -32,6 +33,7 @@ const defaultClientFormData: ClientFormData = {
 };
 
 interface LineItem {
+  productId?: string;
   name: string;
   description: string;
   quantity: string;
@@ -48,6 +50,7 @@ function parseNumber(value: string): number {
 export function CreateInvoice() {
   const navigate = useNavigate();
   const { data: clients, refetch: refetchClients } = useClients();
+  const { data: products, isLoading: productsLoading } = useProducts();
   const createInvoice = useCreateInvoice();
   const createClient = useCreateClient();
 
@@ -82,8 +85,43 @@ export function CreateInvoice() {
   const [clientFormData, setClientFormData] = useState<ClientFormData>(defaultClientFormData);
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
 
+  // Product picker state
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [productSearch, setProductSearch] = useState('');
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+
   const addItem = () => {
     setItems([...items, { name: '', description: '', quantity: '1', unitPrice: '0', discount: '0', taxRate: '0' }]);
+  };
+
+  const addItemsFromProducts = () => {
+    const productsToAdd = products?.filter((p) => selectedProductIds.has(p.id)) ?? [];
+    if (productsToAdd.length === 0) return;
+    const newItems: LineItem[] = productsToAdd.map((product) => ({
+      productId: product.id,
+      name: product.name,
+      description: product.description || '',
+      quantity: String(product.quantity > 0 ? product.quantity : 1),
+      unitPrice: String(product.unitPrice),
+      discount: '0',
+      taxRate: String(product.taxRate),
+    }));
+    setItems((prev) => [...prev, ...newItems]);
+    setSelectedProductIds(new Set());
+    setProductSearch('');
+    setShowProductModal(false);
+  };
+
+  const toggleSelectedProduct = (id: string) => {
+    setSelectedProductIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
   const removeItem = (index: number) => {
@@ -133,6 +171,15 @@ export function CreateInvoice() {
 
   const selectedClient = clients?.find((c) => c.id === clientId);
 
+  const availableProducts = products?.filter((p) => p.currency === currency) ?? [];
+  const filteredProducts = availableProducts.filter(
+    (p) =>
+      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+      p.category?.toLowerCase().includes(productSearch.toLowerCase()) ||
+      p.description?.toLowerCase().includes(productSearch.toLowerCase())
+  );
+  const noProductsAtAll = !productsLoading && products && products.length === 0;
+
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault();
     setClientErrors({});
@@ -173,6 +220,7 @@ export function CreateInvoice() {
       currency,
       reference: reference || undefined,
       items: items.map((item) => ({
+        productId: item.productId,
         description: item.name || item.description,
         quantity: parseNumber(item.quantity),
         unitPrice: parseNumber(item.unitPrice),
@@ -413,12 +461,20 @@ export function CreateInvoice() {
                   </div>
                 ))}
               </div>
-              <button 
-                onClick={addItem}
-                className="w-full h-10 border border-dashed border-outline-variant rounded text-on-surface-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
-              >
-                <Plus className="w-4 h-4" /> Add item
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={addItem}
+                  className="flex-1 h-10 border border-dashed border-outline-variant rounded text-on-surface-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
+                >
+                  <Plus className="w-4 h-4" /> Add item
+                </button>
+                <button 
+                  onClick={() => { setProductSearch(''); setSelectedProductIds(new Set()); setShowProductModal(true); }}
+                  className="h-10 px-4 border border-dashed border-outline-variant rounded text-on-surface-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
+                >
+                  <Package className="w-4 h-4" /> Add from Products
+                </button>
+              </div>
             </div>
 
             {/* Discount, Tax & Terms */}
@@ -787,6 +843,120 @@ export function CreateInvoice() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Product Picker Modal */}
+      {showProductModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface-container-lowest rounded-xl w-full max-w-lg shadow-xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-border-subtle">
+              <div>
+                <h3 className="font-headline text-lg font-semibold">Add from Products</h3>
+                <p className="text-xs text-on-surface-variant mt-0.5">
+                  Showing products in {currency} — the invoice's currency
+                </p>
+              </div>
+              <button onClick={() => setShowProductModal(false)} className="text-on-surface-variant hover:text-primary">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 border-b border-border-subtle">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={productSearch}
+                  onChange={(e) => setProductSearch(e.target.value)}
+                  className="w-full h-10 bg-surface-container-low border border-border-subtle rounded-lg pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/10 focus:border-secondary outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {productsLoading ? (
+                <div className="p-12 text-center">
+                  <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
+                  <p className="text-on-surface-variant mt-4 text-sm">Loading products...</p>
+                </div>
+              ) : noProductsAtAll ? (
+                <div className="p-12 text-center">
+                  <Package className="w-10 h-10 text-on-surface-variant mx-auto mb-3" />
+                  <p className="text-on-surface-variant text-sm">No products yet.</p>
+                  <p className="text-on-surface-variant text-xs mt-1">
+                    Add them in{' '}
+                    <a href="/products" className="text-secondary font-semibold hover:underline">
+                      Products &amp; Services
+                    </a>
+                  </p>
+                </div>
+              ) : availableProducts.length === 0 ? (
+                <div className="p-12 text-center">
+                  <p className="text-on-surface-variant text-sm">
+                    No products in {currency}. Switch the invoice currency or add a product in {currency}.
+                  </p>
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <div className="p-12 text-center">
+                  <p className="text-on-surface-variant text-sm">No products match your search.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border-subtle">
+                  {filteredProducts.map((product) => {
+                    const selected = selectedProductIds.has(product.id);
+                    return (
+                      <button
+                        key={product.id}
+                        onClick={() => toggleSelectedProduct(product.id)}
+                        className="w-full flex items-center gap-4 px-4 py-3 text-left hover:bg-surface-container/40 transition-colors"
+                      >
+                        <div
+                          className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                            selected
+                              ? 'bg-secondary border-secondary text-white'
+                              : 'border-outline-variant bg-surface-container-lowest'
+                          }`}
+                        >
+                          {selected && <Check className="w-3.5 h-3.5" />}
+                        </div>
+                        <div className="w-9 h-9 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                          <Package className="w-4 h-4 text-secondary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{product.name}</p>
+                          {product.description && (
+                            <p className="text-xs text-on-surface-variant truncate">{product.description}</p>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-semibold text-sm">{currencySymbol[currency]}{product.unitPrice.toLocaleString()}</p>
+                          <p className="text-xs text-on-surface-variant">{product.category || '—'}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-border-subtle flex gap-3">
+              <button
+                onClick={() => setShowProductModal(false)}
+                className="flex-1 h-11 border border-border-subtle rounded font-semibold text-sm hover:bg-surface-container transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addItemsFromProducts}
+                disabled={selectedProductIds.size === 0}
+                className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                Add selected ({selectedProductIds.size})
+              </button>
+            </div>
           </div>
         </div>
       )}

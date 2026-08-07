@@ -18,6 +18,7 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<Invoice>
 
   const items: InvoiceItem[] = input.items.map((item, index) => ({
     id: `${index + 1}`,
+    productId: item.productId,
     description: item.description,
     quantity: item.quantity,
     unitPrice: item.unitPrice,
@@ -79,6 +80,7 @@ export async function updateInvoice(id: string, input: UpdateInvoiceInput): Prom
   if (input.items) {
     items = input.items.map((item, idx) => ({
       id: `${idx + 1}`,
+      productId: item.productId,
       description: item.description,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
