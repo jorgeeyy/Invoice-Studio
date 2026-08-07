@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Download, 
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Download,
   MoreHorizontal,
   FileText,
   Printer,
   Copy,
   Trash2,
   Loader2,
+  PencilLine,
 } from 'lucide-react';
 import {
   useInvoice,
@@ -18,6 +19,7 @@ import {
 } from '@/hooks/useInvoices';
 import { useBusiness } from '@/hooks/useBusiness';
 import { downloadInvoicePdf } from '@/api/invoices';
+import { useToast } from '@/components/Toast';
 import type { Currency } from '@/types';
 
 const statusColors: Record<string, string> = {
@@ -42,10 +44,18 @@ export function InvoiceDetail() {
   const updateInvoice = useUpdateInvoice();
   const deleteInvoice = useDeleteInvoice();
   const duplicateInvoice = useDuplicateInvoice();
+  const { success, error: toastError } = useToast();
 
   const [showMenu, setShowMenu] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const close = () => setShowMenu(false);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [showMenu]);
 
   if (isLoading) {
     return (
@@ -90,6 +100,7 @@ export function InvoiceDetail() {
       link.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
+      toastError('Failed to download PDF');
       console.error('Failed to download PDF:', err);
     } finally {
       setDownloading(false);
@@ -99,7 +110,9 @@ export function InvoiceDetail() {
   const handleSetFinal = async () => {
     try {
       await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'final' } });
+      success(`Invoice ${invoice.invoiceNumber} marked as final`);
     } catch (err) {
+      toastError('Failed to finalize invoice');
       console.error('Failed to finalize invoice:', err);
     }
   };
@@ -108,7 +121,9 @@ export function InvoiceDetail() {
     try {
       await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'draft' } });
       setShowMenu(false);
+      success(`Invoice ${invoice.invoiceNumber} reopened as draft`);
     } catch (err) {
+      toastError('Failed to reopen invoice');
       console.error('Failed to reopen invoice:', err);
     }
   };
@@ -117,8 +132,10 @@ export function InvoiceDetail() {
     setShowMenu(false);
     try {
       const dup = await duplicateInvoice.mutateAsync(invoice.id);
+      success(`Invoice ${dup.invoiceNumber} created`);
       navigate(`/invoices/${dup.id}`);
     } catch (err) {
+      toastError('Failed to duplicate invoice');
       console.error('Failed to duplicate invoice:', err);
     }
   };
@@ -126,8 +143,10 @@ export function InvoiceDetail() {
   const handleDelete = async () => {
     try {
       await deleteInvoice.mutateAsync(invoice.id);
+      success(`Invoice ${invoice.invoiceNumber} deleted`);
       navigate('/invoices');
     } catch (error) {
+      toastError('Failed to delete invoice');
       console.error('Failed to delete invoice:', error);
     }
   };
@@ -173,70 +192,115 @@ export function InvoiceDetail() {
             {downloading ? 'Preparing...' : 'Download'}
           </button>
           {invoice.status === 'draft' && (
-            <button 
-              onClick={handleSetFinal}
-              disabled={updateInvoice.isPending}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white font-semibold text-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
-            >
-              {updateInvoice.isPending ? 'Finalizing...' : 'Mark as Final'}
-            </button>
+            <>
+              <Link
+                to={`/invoices/${invoice.id}/edit`}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors"
+              >
+                <PencilLine className="w-4 h-4" />
+                Edit Draft
+              </Link>
+              <button
+                onClick={handleSetFinal}
+                disabled={updateInvoice.isPending}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white font-semibold text-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
+              >
+                {updateInvoice.isPending ? 'Finalizing...' : 'Mark as Final'}
+              </button>
+            </>
           )}
           <div className="relative">
-            <button 
-              onClick={() => setShowMenu(!showMenu)}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenu((prev) => !prev);
+              }}
+              aria-label="More actions"
+              aria-expanded={showMenu}
               className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
             >
               <MoreHorizontal className="w-5 h-5" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-border-subtle py-1 z-10">
-                {invoice.status === 'final' && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-border-subtle py-1 z-20 overflow-hidden"
+              >
+                  {invoice.status === 'final' && (
+                    <button
+                      onClick={handleReopen}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
+                    >
+                      <PencilLine className="w-4 h-4 text-on-surface-variant" />
+                      Reopen as Draft
+                    </button>
+                  )}
                   <button
-                    onClick={handleReopen}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
+                    onClick={handleDuplicate}
+                    disabled={duplicateInvoice.isPending}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50"
                   >
-                    Reopen as Draft
+                    {duplicateInvoice.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-on-surface-variant" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-on-surface-variant" />
+                    )}
+                    {duplicateInvoice.isPending ? 'Duplicating...' : 'Duplicate'}
                   </button>
-                )}
-                <button
-                  onClick={handleDuplicate}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                  Duplicate
-                </button>
-                <hr className="my-1 border-border-subtle" />
-                <button
-                  onClick={() => { setDeleteConfirm(true); setShowMenu(false); }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error/10 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </button>
-              </div>
+                  <hr className="my-1 border-border-subtle" />
+                  <button
+                    onClick={() => {
+                      setDeleteConfirm(true);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error/10 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="bg-error/10 border border-error/20 rounded-xl p-4 flex items-center justify-between">
-          <p className="text-sm font-medium text-error">Are you sure you want to delete this invoice?</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setDeleteConfirm(false)}
-              className="px-3 py-1.5 border border-border-subtle rounded text-sm font-semibold hover:bg-surface-container"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleteInvoice.isPending}
-              className="px-3 py-1.5 bg-error text-white rounded text-sm font-semibold hover:opacity-90 disabled:opacity-50"
-            >
-              {deleteInvoice.isPending ? 'Deleting...' : 'Delete'}
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setDeleteConfirm(false)}
+          />
+          <div className="relative bg-surface-container-lowest rounded-xl shadow-xl border border-border-subtle w-full max-w-sm p-6">
+            <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4">
+              <Trash2 className="w-6 h-6 text-error" />
+            </div>
+            <h3 className="font-headline text-lg font-bold text-primary">Delete invoice?</h3>
+            <p className="text-sm text-on-surface-variant mt-1">
+              This will permanently delete <span className="font-semibold text-primary">{invoice.invoiceNumber}</span>.
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setDeleteConfirm(false)}
+                disabled={deleteInvoice.isPending}
+                className="flex-1 h-10 border border-border-subtle rounded-lg font-semibold text-sm hover:bg-surface-container transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteInvoice.isPending}
+                className="flex-1 h-10 bg-error text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {deleteInvoice.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                {deleteInvoice.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}

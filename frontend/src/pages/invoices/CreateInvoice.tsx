@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Send, HelpCircle, Bell, X, Landmark, Smartphone, Bitcoin, Sparkles, Check, Package, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Plus, Trash2, Send, HelpCircle, Bell, X, Landmark, Smartphone, Bitcoin, Sparkles, Check, Package, Search, FileText } from 'lucide-react';
 import { useClients, useCreateClient } from '@/hooks/useClients';
 import { useProducts } from '@/hooks/useProducts';
-import { useCreateInvoice } from '@/hooks/useInvoices';
+import { useCreateInvoice, useUpdateInvoice, useInvoice } from '@/hooks/useInvoices';
 import { useBusiness } from '@/hooks/useBusiness';
 import { createInvoiceSchema, clientSchema } from '@/lib/validations';
 import { InvoicePreview } from '@/components/InvoicePreview';
+import { useToast } from '@/components/Toast';
 import type { Currency, DiscountType, InvoiceTemplate, PaymentTerms } from '@/types';
 
 const PAYMENT_TERMS_OPTIONS: Array<{ value: PaymentTerms; label: string }> = [
@@ -19,6 +20,58 @@ const PAYMENT_TERMS_OPTIONS: Array<{ value: PaymentTerms; label: string }> = [
 
 const paymentTermsLabel = (terms: string): string =>
   PAYMENT_TERMS_OPTIONS.find((opt) => opt.value === terms)?.label || terms.replace(/_/g, ' ');
+
+interface PayMethodData {
+  bank: Record<string, string>;
+  momo: Record<string, string>;
+  crypto: Record<string, string>;
+  custom1: Record<string, string>;
+  custom2: Record<string, string>;
+}
+
+const EMPTY_PAYMENT: PayMethodData = {
+  bank: { name: '', accountName: '', accountNumber: '', routingNumber: '', iban: '', swift: '' },
+  momo: { provider: '', number: '', name: '' },
+  crypto: { network: '', address: '', label: '' },
+  custom1: { label: '', value: '' },
+  custom2: { label: '', value: '' },
+};
+
+function serializePayment(
+  active: ReadonlySet<string>,
+  discount: string,
+  data: PayMethodData
+): string {
+  return JSON.stringify({ v: 1, active: [...active], discount, methods: data });
+}
+
+interface ParsedPayment {
+  active: string[];
+  discount: string;
+  methods: PayMethodData;
+}
+
+function parsePayment(raw?: string | null): ParsedPayment | null {
+  if (!raw) return null;
+  try {
+    const o = JSON.parse(raw);
+    if (o && typeof o === 'object' && o.v === 1 && Array.isArray(o.active) && o.methods) {
+      return {
+        active: o.active,
+        discount: String(o.discount ?? '0'),
+        methods: { ...EMPTY_PAYMENT, ...o.methods },
+      };
+    }
+  } catch {
+    /* not a persisted payload */
+  }
+  return null;
+}
+
+function roundDiscount(value: number): string {
+  if (!Number.isFinite(value)) return '0';
+  return String(Math.round((value + Number.EPSILON) * 100) / 100);
+}
 
 interface ClientFormData {
   name: string;
@@ -61,11 +114,16 @@ function parseNumber(value: string): number {
 
 export function CreateInvoice() {
   const navigate = useNavigate();
+  const { id: editId } = useParams<{ id: string }>();
+  const isEdit = Boolean(editId);
+  const { data: editingInvoice, isLoading: invoiceLoading } = useInvoice(editId || '');
   const { data: clients, refetch: refetchClients } = useClients();
   const { data: products, isLoading: productsLoading } = useProducts();
   const createInvoice = useCreateInvoice();
+  const updateInvoice = useUpdateInvoice();
   const createClient = useCreateClient();
   const { data: business } = useBusiness();
+  const { success, error: toastError } = useToast();
 
   const [clientId, setClientId] = useState('');
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
@@ -75,13 +133,14 @@ export function CreateInvoice() {
   const [internalNotes, setInternalNotes] = useState('');
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>('net_30');
   const [activePaymentMethods, setActivePaymentMethods] = useState<Set<string>>(new Set());
-  const [paymentData, setPaymentData] = useState({
-    bank: { name: '', accountName: '', accountNumber: '', routingNumber: '', iban: '', swift: '' },
-    momo: { provider: '', number: '', name: '' },
-    crypto: { network: '', address: '', label: '' },
-    custom1: { label: '', value: '' },
-    custom2: { label: '', value: '' },
-  });
+  const [paymentData, setPaymentData] = useState<PayMethodData>(() => ({
+    ...EMPTY_PAYMENT,
+    bank: { ...EMPTY_PAYMENT.bank },
+    momo: { ...EMPTY_PAYMENT.momo },
+    crypto: { ...EMPTY_PAYMENT.crypto },
+    custom1: { ...EMPTY_PAYMENT.custom1 },
+    custom2: { ...EMPTY_PAYMENT.custom2 },
+  }));
   const [discount, setDiscount] = useState('0');
   const [discountType, setDiscountType] = useState<DiscountType>('percentage');
   const [taxRate, setTaxRate] = useState('10');
@@ -193,6 +252,58 @@ export function CreateInvoice() {
   );
   const noProductsAtAll = !productsLoading && products && products.length === 0;
 
+  useEffect(() => {
+    if (!editingInvoice) return;
+    setClientId(editingInvoice.clientId);
+    setIssueDate(editingInvoice.issueDate);
+    setCurrency(editingInvoice.currency);
+    setReference(editingInvoice.reference ?? '');
+    setNotes(editingInvoice.notes ?? '');
+    setInternalNotes(editingInvoice.internalNotes ?? '');
+    setPaymentTerms(editingInvoice.paymentTerms ?? 'net_30');
+    setTaxRate(String(editingInvoice.taxRate ?? 0));
+    setTaxName(editingInvoice.taxName ?? 'Tax');
+    setTemplate(editingInvoice.template ?? 'minimal');
+    setItems(
+      editingInvoice.items.map((it) => ({
+        productId: it.productId ?? undefined,
+        name: it.description,
+        description: it.description,
+        quantity: String(it.quantity),
+        unitPrice: String(it.unitPrice),
+        discount: String(it.discount),
+        taxRate: String(it.taxRate),
+      }))
+    );
+
+    const persisted = parsePayment(editingInvoice.paymentInstructions);
+    if (persisted) {
+      setActivePaymentMethods(new Set(persisted.active));
+      setPaymentData({
+        ...EMPTY_PAYMENT,
+        ...persisted.methods,
+        bank: { ...EMPTY_PAYMENT.bank, ...persisted.methods.bank },
+        momo: { ...EMPTY_PAYMENT.momo, ...persisted.methods.momo },
+        crypto: { ...EMPTY_PAYMENT.crypto, ...persisted.methods.crypto },
+        custom1: { ...EMPTY_PAYMENT.custom1, ...persisted.methods.custom1 },
+        custom2: { ...EMPTY_PAYMENT.custom2, ...persisted.methods.custom2 },
+      });
+      setDiscount(persisted.discount);
+      setDiscountType(editingInvoice.discountType ?? 'percentage');
+      return;
+    }
+
+    const dType = editingInvoice.discountType ?? 'percentage';
+    setDiscountType(dType);
+    const raw =
+      dType === 'percentage'
+        ? editingInvoice.subtotal > 0
+          ? (editingInvoice.discount / editingInvoice.subtotal) * 100
+          : 0
+        : editingInvoice.discount;
+    setDiscount(roundDiscount(raw));
+  }, [editingInvoice]);
+
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault();
     setClientErrors({});
@@ -247,6 +358,7 @@ export function CreateInvoice() {
       notes: notes || undefined,
       internalNotes: internalNotes || undefined,
       paymentTerms,
+      paymentInstructions: serializePayment(activePaymentMethods, discount, paymentData),
       template,
     };
 
@@ -263,12 +375,62 @@ export function CreateInvoice() {
     }
 
     try {
-      const invoice = await createInvoice.mutateAsync(result.data);
-      navigate(`/invoices/${invoice.id}`);
-    } catch (error) {
-      setErrors({ form: error instanceof Error ? error.message : 'Failed to create invoice' });
+      if (isEdit && editId) {
+        const invoice = await updateInvoice.mutateAsync({ id: editId, input: result.data });
+        success(`Invoice ${invoice.invoiceNumber} saved`);
+        navigate(`/invoices/${editId}`, { replace: true });
+      } else {
+        const invoice = await createInvoice.mutateAsync(result.data);
+        success(`Invoice ${invoice.invoiceNumber} created as draft`);
+        navigate(`/invoices/${invoice.id}`);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save invoice';
+      setErrors({ form: message });
+      toastError(message);
     }
   };
+
+  if (isEdit && invoiceLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (isEdit && editingInvoice && editingInvoice.status !== 'draft') {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
+        <FileText className="w-12 h-12 text-on-surface-variant mb-4" />
+        <h2 className="font-headline text-xl font-bold text-primary">Only draft invoices can be edited</h2>
+        <p className="text-sm text-on-surface-variant mt-2 max-w-md">
+          Reopen the invoice as a draft first, then you can edit its details.
+        </p>
+        <button
+          onClick={() => navigate(`/invoices/${editId}`)}
+          className="mt-6 px-5 py-2 bg-secondary text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+        >
+          Back to invoice
+        </button>
+      </div>
+    );
+  }
+
+  if (isEdit && !editingInvoice) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
+        <FileText className="w-12 h-12 text-on-surface-variant mb-4" />
+        <p className="text-sm text-on-surface-variant">Invoice not found.</p>
+        <button
+          onClick={() => navigate('/invoices')}
+          className="mt-6 px-5 py-2 bg-secondary text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+        >
+          Back to invoices
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -281,7 +443,7 @@ export function CreateInvoice() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h2 className="font-headline text-sm font-semibold text-primary">New Invoice</h2>
+          <h2 className="font-headline text-sm font-semibold text-primary">{isEdit ? 'Edit Draft' : 'New Invoice'}</h2>
         </div>
         <div className="flex items-center gap-4">
           <select 
@@ -690,17 +852,43 @@ export function CreateInvoice() {
               </p>
             )}
             <div className="flex gap-3">
-              <button className="flex-1 h-11 border border-border-subtle rounded font-semibold text-sm hover:bg-surface-container transition-colors">
-                Save Draft
-              </button>
-              <button 
-                onClick={handleSubmit}
-                disabled={createInvoice.isPending}
-                className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                {createInvoice.isPending ? 'Sending...' : 'Send Invoice'}
-                <Send className="w-4 h-4" />
-              </button>
+              {isEdit ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="flex-1 h-11 border border-border-subtle rounded font-semibold text-sm hover:bg-surface-container transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={updateInvoice.isPending}
+                    className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                  >
+                    {updateInvoice.isPending ? 'Saving...' : 'Save Changes'}
+                    <Send className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={createInvoice.isPending}
+                    className="flex-1 h-11 border border-border-subtle rounded font-semibold text-sm hover:bg-surface-container transition-colors"
+                  >
+                    {createInvoice.isPending ? 'Saving...' : 'Save Draft'}
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={createInvoice.isPending}
+                    className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                  >
+                    {createInvoice.isPending ? 'Sending...' : 'Send Invoice'}
+                    <Send className="w-4 h-4" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </section>

@@ -12,12 +12,14 @@ import { ClientList } from '@/pages/clients/ClientList';
 import { ProductList } from '@/pages/products/ProductList';
 import { BusinessSettings } from '@/pages/settings/BusinessSettings';
 import { PrintInvoice } from '@/pages/invoices/PrintInvoice';
+import { ToastProvider } from '@/components/Toast';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <ToastProvider>
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
@@ -31,6 +33,7 @@ function App() {
             <Route path="/invoices" element={<InvoiceList />} />
             <Route path="/invoices/create" element={<CreateInvoice />} />
             <Route path="/invoices/:id" element={<InvoiceDetail />} />
+            <Route path="/invoices/:id/edit" element={<CreateInvoice />} />
             <Route path="/clients" element={<ClientList />} />
             <Route path="/products" element={<ProductList />} />
             <Route path="/settings" element={<BusinessSettings />} />
@@ -43,6 +46,7 @@ function App() {
           <Route path="/print/:id" element={<PrintInvoice />} />
         </Routes>
       </BrowserRouter>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
