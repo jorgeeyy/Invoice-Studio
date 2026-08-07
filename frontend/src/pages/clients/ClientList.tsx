@@ -6,37 +6,23 @@ import type { Client } from '@/types';
 
 interface ClientFormData {
   name: string;
-  contactPerson: string;
   email: string;
   phone: string;
   website: string;
-  company: string;
   address: {
     street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
   };
-  taxId: string;
   notes: string;
 }
 
 const defaultFormData: ClientFormData = {
   name: '',
-  contactPerson: '',
   email: '',
   phone: '',
   website: '',
-  company: '',
   address: {
     street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: '',
   },
-  taxId: '',
   notes: '',
 };
 
@@ -67,13 +53,10 @@ export function ClientList() {
       setEditingClient(client);
       setFormData({
         name: client.name,
-        contactPerson: client.contactPerson || '',
         email: client.email,
         phone: client.phone || '',
         website: client.website || '',
-        company: client.company || '',
-        address: client.address || { street: '', city: '', state: '', zipCode: '', country: '' },
-        taxId: client.taxId || '',
+        address: { street: client.address?.street || '' },
         notes: client.notes || '',
       });
     } else {
@@ -97,13 +80,10 @@ export function ClientList() {
 
     const inputData = {
       name: formData.name,
-      contactPerson: formData.contactPerson || undefined,
       email: formData.email,
       phone: formData.phone || undefined,
       website: formData.website || undefined,
-      company: formData.company || undefined,
-      address: formData.address.street ? formData.address : undefined,
-      taxId: formData.taxId || undefined,
+      address: formData.address.street ? { street: formData.address.street } : undefined,
       notes: formData.notes || undefined,
     };
 
@@ -302,22 +282,10 @@ export function ClientList() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                    placeholder="Company name"
+                    placeholder="Name or company"
                   />
                   {errors.name && <p className="text-status-error text-xs">{errors.name}</p>}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact Person</label>
-                  <input
-                    type="text"
-                    value={formData.contactPerson}
-                    onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                    placeholder="Primary contact"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email *</label>
                   <input
@@ -329,6 +297,8 @@ export function ClientList() {
                   />
                   {errors.email && <p className="text-status-error text-xs">{errors.email}</p>}
                 </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phone</label>
                   <input
@@ -337,18 +307,6 @@ export function ClientList() {
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                     placeholder="+1 (555) 000-0000"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Company</label>
-                  <input
-                    type="text"
-                    value={formData.company}
-                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                    placeholder="Company name"
                   />
                 </div>
                 <div className="space-y-2">
@@ -367,58 +325,9 @@ export function ClientList() {
                 <input
                   type="text"
                   value={formData.address.street}
-                  onChange={(e) => setFormData({ ...formData, address: { ...formData.address, street: e.target.value } })}
+                  onChange={(e) => setFormData({ ...formData, address: { street: e.target.value } })}
                   className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   placeholder="123 Main St"
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">City</label>
-                  <input
-                    type="text"
-                    value={formData.address.city}
-                    onChange={(e) => setFormData({ ...formData, address: { ...formData.address, city: e.target.value } })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">State</label>
-                  <input
-                    type="text"
-                    value={formData.address.state}
-                    onChange={(e) => setFormData({ ...formData, address: { ...formData.address, state: e.target.value } })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">ZIP Code</label>
-                  <input
-                    type="text"
-                    value={formData.address.zipCode}
-                    onChange={(e) => setFormData({ ...formData, address: { ...formData.address, zipCode: e.target.value } })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Country</label>
-                <input
-                  type="text"
-                  value={formData.address.country}
-                  onChange={(e) => setFormData({ ...formData, address: { ...formData.address, country: e.target.value } })}
-                  className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                  placeholder="Country"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tax ID</label>
-                <input
-                  type="text"
-                  value={formData.taxId}
-                  onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
-                  className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                  placeholder="Tax registration number"
                 />
               </div>
               <div className="space-y-2">

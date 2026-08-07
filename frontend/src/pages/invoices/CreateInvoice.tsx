@@ -75,26 +75,18 @@ function roundDiscount(value: number): string {
 
 interface ClientFormData {
   name: string;
-  contactPerson: string;
   email: string;
   phone: string;
-  company: string;
   address: {
     street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
   };
 }
 
 const defaultClientFormData: ClientFormData = {
   name: '',
-  contactPerson: '',
   email: '',
   phone: '',
-  company: '',
-  address: { street: '', city: '', state: '', zipCode: '', country: '' },
+  address: { street: '' },
 };
 
 interface LineItem {
@@ -955,22 +947,10 @@ export function CreateInvoice() {
                     value={clientFormData.name}
                     onChange={(e) => setClientFormData({ ...clientFormData, name: e.target.value })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                    placeholder="Company name"
+                    placeholder="Name or company"
                   />
                   {clientErrors.name && <p className="text-status-error text-xs">{clientErrors.name}</p>}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact Person</label>
-                  <input
-                    type="text"
-                    value={clientFormData.contactPerson}
-                    onChange={(e) => setClientFormData({ ...clientFormData, contactPerson: e.target.value })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                    placeholder="Primary contact"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email *</label>
                   <input
@@ -982,6 +962,8 @@ export function CreateInvoice() {
                   />
                   {clientErrors.email && <p className="text-status-error text-xs">{clientErrors.email}</p>}
                 </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phone</label>
                   <input
@@ -992,55 +974,14 @@ export function CreateInvoice() {
                     placeholder="+1 (555) 000-0000"
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Company</label>
-                  <input
-                    type="text"
-                    value={clientFormData.company}
-                    onChange={(e) => setClientFormData({ ...clientFormData, company: e.target.value })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                    placeholder="Company name"
-                  />
-                </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Address</label>
                   <input
                     type="text"
                     value={clientFormData.address.street}
-                    onChange={(e) => setClientFormData({ ...clientFormData, address: { ...clientFormData.address, street: e.target.value } })}
+                    onChange={(e) => setClientFormData({ ...clientFormData, address: { street: e.target.value } })}
                     className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                     placeholder="123 Main St"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">City</label>
-                  <input
-                    type="text"
-                    value={clientFormData.address.city}
-                    onChange={(e) => setClientFormData({ ...clientFormData, address: { ...clientFormData.address, city: e.target.value } })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">State</label>
-                  <input
-                    type="text"
-                    value={clientFormData.address.state}
-                    onChange={(e) => setClientFormData({ ...clientFormData, address: { ...clientFormData.address, state: e.target.value } })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">ZIP Code</label>
-                  <input
-                    type="text"
-                    value={clientFormData.address.zipCode}
-                    onChange={(e) => setClientFormData({ ...clientFormData, address: { ...clientFormData.address, zipCode: e.target.value } })}
-                    className="w-full h-10 border border-border-subtle rounded px-3 text-sm"
                   />
                 </div>
               </div>

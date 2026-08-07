@@ -9,13 +9,10 @@ from app.schemas.common import (
 
 class ClientBase(ORMCamelModel):
     name: str
-    contact_person: str | None = None
     email: str | None = None
     phone: str | None = None
     website: str | None = None
-    company: str | None = None
     address: Address | None = None
-    tax_id: str | None = None
     notes: str | None = None
     status: ClientStatus = "active"
 
@@ -26,13 +23,10 @@ class ClientCreate(ClientBase):
 
 class ClientUpdate(ORMCamelModel):
     name: str | None = None
-    contact_person: str | None = None
     email: str | None = None
     phone: str | None = None
     website: str | None = None
-    company: str | None = None
     address: Address | None = None
-    tax_id: str | None = None
     notes: str | None = None
     status: ClientStatus | None = None
 

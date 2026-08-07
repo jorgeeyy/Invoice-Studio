@@ -16,13 +16,10 @@ class Client(Base, TimestampMixin):
         ForeignKey("businesses.id", ondelete="CASCADE"), index=True, nullable=False
     )
     name: Mapped[str] = mapped_column(String(120), nullable=False)
-    contact_person: Mapped[str | None] = mapped_column(String(120), nullable=True)
     email: Mapped[str] = mapped_column(String(255), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     website: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    company: Mapped[str | None] = mapped_column(String(120), nullable=True)
     address: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
-    tax_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
 

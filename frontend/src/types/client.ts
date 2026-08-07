@@ -20,15 +20,16 @@ export interface Client {
   updatedAt: string;
 }
 
+export interface ClientAddressInput {
+  street: string;
+}
+
 export interface CreateClientInput {
   name: string;
-  contactPerson?: string;
   email: string;
   phone?: string;
   website?: string;
-  company?: string;
-  address?: Client['address'];
-  taxId?: string;
+  address?: ClientAddressInput;
   notes?: string;
   status?: Client['status'];
 }

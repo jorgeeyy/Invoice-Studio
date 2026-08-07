@@ -32,19 +32,14 @@ export const createInvoiceSchema = z.object({
 
 export const clientSchema = z.object({
   name: z.string().min(1, 'Client name is required'),
-  contactPerson: z.string().optional(),
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
   website: z.string().url('Invalid URL').optional().or(z.literal('')),
-  company: z.string().optional(),
-  address: z.object({
-    street: z.string().default(''),
-    city: z.string().default(''),
-    state: z.string().default(''),
-    zipCode: z.string().default(''),
-    country: z.string().default(''),
-  }).optional(),
-  taxId: z.string().optional(),
+  address: z
+    .object({
+      street: z.string().default(''),
+    })
+    .optional(),
   notes: z.string().optional(),
   status: z.enum(['active', 'archived']).default('active'),
 });
