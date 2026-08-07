@@ -5,7 +5,6 @@ import {
   Download,
   MoreHorizontal,
   FileText,
-  Printer,
   Copy,
   Trash2,
   Loader2,
@@ -82,10 +81,6 @@ export function InvoiceDetail() {
 
   const symbol = currencySymbol[invoice.currency] || '$';
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleDownload = async () => {
     if (!invoice || downloading) return;
     setDownloading(true);
@@ -152,7 +147,7 @@ export function InvoiceDetail() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
@@ -176,13 +171,6 @@ export function InvoiceDetail() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <button 
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors"
-          >
-            <Printer className="w-4 h-4" />
-            Print
-          </button>
           <button 
             onClick={handleDownload}
             disabled={downloading}
@@ -224,7 +212,7 @@ export function InvoiceDetail() {
             {showMenu && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-border-subtle py-1 z-20 overflow-hidden"
+                className="absolute right-0 top-full mt-1 w-56 bg-surface-container-lowest rounded-lg shadow-lg border border-border-subtle py-1 z-20 overflow-hidden"
               >
                   {invoice.status === 'final' && (
                     <button
@@ -253,7 +241,7 @@ export function InvoiceDetail() {
                       setDeleteConfirm(true);
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error/10 transition-colors"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-status-error hover:bg-status-error/10 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                     Delete
@@ -272,8 +260,8 @@ export function InvoiceDetail() {
             onClick={() => setDeleteConfirm(false)}
           />
           <div className="relative bg-surface-container-lowest rounded-xl shadow-xl border border-border-subtle w-full max-w-sm p-6">
-            <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4">
-              <Trash2 className="w-6 h-6 text-error" />
+            <div className="w-12 h-12 rounded-full bg-status-error/10 flex items-center justify-center mb-4">
+              <Trash2 className="w-6 h-6 text-status-error" />
             </div>
             <h3 className="font-headline text-lg font-bold text-primary">Delete invoice?</h3>
             <p className="text-sm text-on-surface-variant mt-1">
@@ -291,7 +279,7 @@ export function InvoiceDetail() {
               <button
                 onClick={handleDelete}
                 disabled={deleteInvoice.isPending}
-                className="flex-1 h-10 bg-error text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 h-10 bg-status-error text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {deleteInvoice.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

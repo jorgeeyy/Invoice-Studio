@@ -558,7 +558,7 @@ export function CreateInvoice() {
                         </button>
                         <button 
                           onClick={() => removeItem(index)}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-error text-white rounded-full flex items-center justify-center"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-status-error text-white rounded-full flex items-center justify-center"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -627,7 +627,7 @@ export function CreateInvoice() {
                         <span className="font-semibold text-sm">{currencySymbol[currency]}{(parseNumber(item.quantity) * parseNumber(item.unitPrice) - parseNumber(item.discount)).toLocaleString()}</span>
                         <button 
                           onClick={(e) => { e.stopPropagation(); removeItem(index); }}
-                          className="p-1 hover:bg-error/10 rounded text-on-surface-variant hover:text-error transition-colors"
+                          className="p-1 hover:bg-status-error/10 rounded text-on-surface-variant hover:text-status-error transition-colors"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>

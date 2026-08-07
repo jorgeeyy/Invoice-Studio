@@ -220,7 +220,7 @@ export function ProductList() {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => handleDelete(product.id)}
-                              className="px-2 py-1 bg-error text-white text-xs rounded font-semibold hover:opacity-90"
+                              className="px-2 py-1 bg-status-error text-white text-xs rounded font-semibold hover:opacity-90"
                             >
                               Confirm
                             </button>
@@ -234,7 +234,7 @@ export function ProductList() {
                         ) : (
                           <button
                             onClick={() => setDeleteConfirm(product.id)}
-                            className="p-1.5 hover:bg-error/10 rounded-lg text-on-surface-variant hover:text-error transition-colors"
+                            className="p-1.5 hover:bg-status-error/10 rounded-lg text-on-surface-variant hover:text-status-error transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
