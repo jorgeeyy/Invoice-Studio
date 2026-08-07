@@ -435,7 +435,7 @@ export function CreateInvoice() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top App Bar */}
-      <header className="h-14 bg-surface-bright border-b border-border-subtle flex items-center justify-between px-8 sticky top-0 z-40">
+      <header className="h-14 bg-surface-bright border-b border-border-subtle flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate(-1)}
@@ -467,10 +467,10 @@ export function CreateInvoice() {
       </header>
 
       {/* Editor/Preview Grid */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden">
         {/* Left: Editor Panel */}
-        <section className="w-[480px] bg-surface-container-lowest border-r border-border-subtle overflow-y-auto flex flex-col">
-          <div className="p-8 space-y-8 flex-1">
+        <section className="w-full lg:w-[480px] bg-surface-container-lowest lg:border-r border-b lg:border-b-0 border-border-subtle lg:overflow-y-auto flex flex-col">
+          <div className="p-4 sm:p-8 space-y-8 flex-1">
             {/* Client Selector */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Client</label>
@@ -497,7 +497,7 @@ export function CreateInvoice() {
             </div>
 
             {/* Dates & Currency Grid */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Issue Date</label>
                 <input 
@@ -654,7 +654,7 @@ export function CreateInvoice() {
 
             {/* Discount, Tax & Terms */}
             <div className="space-y-6 pt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Discount</label>
                   <div className="flex gap-2">
@@ -770,7 +770,7 @@ export function CreateInvoice() {
                   <Landmark className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Bank Transfer Details</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input type="text" value={paymentData.bank.name} onChange={(e) => updatePaymentData('bank', 'name', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Bank name" />
                   <input type="text" value={paymentData.bank.accountName} onChange={(e) => updatePaymentData('bank', 'accountName', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Account name" />
                   <input type="text" value={paymentData.bank.accountNumber} onChange={(e) => updatePaymentData('bank', 'accountNumber', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Account number" />
@@ -788,7 +788,7 @@ export function CreateInvoice() {
                   <Smartphone className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Mobile Money Details</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <input type="text" value={paymentData.momo.provider} onChange={(e) => updatePaymentData('momo', 'provider', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="MTN, M-Pesa..." />
                   <input type="text" value={paymentData.momo.number} onChange={(e) => updatePaymentData('momo', 'number', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="+233 XX XXX XXXX" />
                   <input type="text" value={paymentData.momo.name} onChange={(e) => updatePaymentData('momo', 'name', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Account name" />
@@ -803,7 +803,7 @@ export function CreateInvoice() {
                   <Bitcoin className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Crypto Wallet Details</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <input type="text" value={paymentData.crypto.network} onChange={(e) => updatePaymentData('crypto', 'network', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="BTC, ETH, USDT..." />
                   <input type="text" value={paymentData.crypto.address} onChange={(e) => updatePaymentData('crypto', 'address', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest col-span-2" placeholder="Wallet address" />
                   <input type="text" value={paymentData.crypto.label} onChange={(e) => updatePaymentData('crypto', 'label', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Label (optional)" />
@@ -818,7 +818,7 @@ export function CreateInvoice() {
                   <Sparkles className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Custom Payment Method</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input type="text" value={paymentData.custom1.label} onChange={(e) => updatePaymentData('custom1', 'label', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="e.g. PayPal, Venmo, Wise" />
                   <input type="text" value={paymentData.custom1.value} onChange={(e) => updatePaymentData('custom1', 'value', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Email, link, or ID" />
                 </div>
@@ -832,7 +832,7 @@ export function CreateInvoice() {
                   <Sparkles className="w-5 h-5 text-secondary" />
                   <span className="font-semibold text-sm">Another Payment Method</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input type="text" value={paymentData.custom2.label} onChange={(e) => updatePaymentData('custom2', 'label', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="e.g. Stripe, Cash App" />
                   <input type="text" value={paymentData.custom2.value} onChange={(e) => updatePaymentData('custom2', 'value', e.target.value)} className="h-10 border border-border-subtle rounded-lg px-3 text-sm bg-surface-container-lowest" placeholder="Payment link or ID" />
                 </div>
@@ -894,7 +894,7 @@ export function CreateInvoice() {
         </section>
 
         {/* Right: Live Preview Panel */}
-        <section className="flex-1 bg-surface-container-low overflow-y-auto p-12 flex justify-center">
+        <section className="flex-1 bg-surface-container-low lg:overflow-y-auto p-4 sm:p-8 lg:p-12 flex justify-center">
           <InvoicePreview
             template={template}
             currency={currency}
@@ -947,7 +947,7 @@ export function CreateInvoice() {
               </button>
             </div>
             <form onSubmit={handleCreateClient} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Name *</label>
                   <input
@@ -970,7 +970,7 @@ export function CreateInvoice() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email *</label>
                   <input
@@ -993,7 +993,7 @@ export function CreateInvoice() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Company</label>
                   <input
@@ -1015,7 +1015,7 @@ export function CreateInvoice() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">City</label>
                   <input

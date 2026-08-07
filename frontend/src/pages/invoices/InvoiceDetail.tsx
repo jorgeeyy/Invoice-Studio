@@ -175,10 +175,10 @@ export function InvoiceDetail() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button 
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors"
           >
             <Printer className="w-4 h-4" />
             Print
@@ -186,7 +186,7 @@ export function InvoiceDetail() {
           <button 
             onClick={handleDownload}
             disabled={downloading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-60"
           >
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             {downloading ? 'Preparing...' : 'Download'}
@@ -195,7 +195,7 @@ export function InvoiceDetail() {
             <>
               <Link
                 to={`/invoices/${invoice.id}/edit`}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors"
               >
                 <PencilLine className="w-4 h-4" />
                 Edit Draft
@@ -203,7 +203,7 @@ export function InvoiceDetail() {
               <button
                 onClick={handleSetFinal}
                 disabled={updateInvoice.isPending}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white font-semibold text-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-secondary text-white font-semibold text-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
               >
                 {updateInvoice.isPending ? 'Finalizing...' : 'Mark as Final'}
               </button>
@@ -306,7 +306,7 @@ export function InvoiceDetail() {
       )}
 
       {/* Invoice Content */}
-      <div className="bg-surface-container-lowest rounded-xl border border-border-subtle p-8">
+      <div className="bg-surface-container-lowest rounded-xl border border-border-subtle p-4 sm:p-8">
         {/* From/To Section */}
         <div className="grid gap-8 sm:grid-cols-2 mb-8">
           <div>

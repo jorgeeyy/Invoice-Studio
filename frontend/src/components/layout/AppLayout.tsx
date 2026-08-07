@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Sidebar } from './Sidebar';
+import { MobileMenu } from './MobileMenu';
 import { Header } from './Header';
 import { cn } from '@/lib/utils';
 import { useSession } from '@/hooks/useSession';
@@ -21,6 +22,7 @@ export function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem(SIDEBAR_KEY) === 'true'
   );
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const queryClient = useQueryClient();
 
@@ -48,10 +50,15 @@ export function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {!sidebarCollapsed && <Sidebar />}
+      <MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
       <main className={cn('min-h-screen', !sidebarCollapsed && 'md:ml-60')}>
-        <Header onToggleSidebar={toggleSidebar} sidebarCollapsed={sidebarCollapsed} />
+        <Header
+          onToggleSidebar={toggleSidebar}
+          onOpenMobileMenu={() => setMobileMenuOpen(true)}
+          sidebarCollapsed={sidebarCollapsed}
+        />
         <div className="p-4 md:p-8 max-w-[1440px] mx-auto">
           <Outlet />
         </div>
