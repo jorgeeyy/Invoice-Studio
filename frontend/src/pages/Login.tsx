@@ -69,7 +69,7 @@ export function Login() {
                 to="/signup"
                 className="font-semibold text-secondary hover:underline"
               >
-                Start a free trial
+                Create an account
               </Link>
             </p>
 

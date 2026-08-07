@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { 
+import {
   PlayCircle,
   CheckCircle,
   Users,
@@ -22,25 +22,25 @@ const features: Array<{
 }> = [
   {
     name: 'Smart Invoicing',
-    description: 'Create professional, pixel-perfect documents in seconds. Automated tax calculations and multi-currency support included.',
+    description: 'Create professional invoices in seconds with automated tax calculations, discounts, and multi-currency support.',
     image: '/images/feature-invoicing.png',
     hasImage: true,
   },
   {
-    name: 'Revenue Tracking',
-    description: 'Real-time financial analytics. Visualize your cash flow and forecast future earnings with high-precision charts.',
+    name: 'Invoice Templates',
+    description: 'Choose from five polished templates — Minimal, Corporate, Modern, Agency, and Elegant — to match your brand.',
     image: '/images/feature-revenue.png',
     hasImage: true,
   },
   {
-    name: 'Client Management',
-    description: 'Centralized CRM for your freelance business. Track projects, contact history, and individual client billing cycles.',
+    name: 'Client Directory',
+    description: 'Keep your clients organized in one place. Create, edit, and manage client details for faster invoicing.',
     icon: Users,
     hasImage: false,
   },
   {
-    name: 'Payment Automation',
-    description: 'Integrated Stripe and Card payments. Set up automatic reminders and recurring billing with ease.',
+    name: 'PDF Export',
+    description: 'Download invoices as professional PDF files with print-ready formatting and your branding applied automatically.',
     icon: Zap,
     hasImage: false,
   },
@@ -54,7 +54,7 @@ const footerLinks = {
 
 export function Landing() {
   const { theme, toggleTheme } = useTheme();
-  
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
@@ -62,7 +62,7 @@ export function Landing() {
         <div className="flex justify-between items-center w-full px-4 sm:px-8 py-4 max-w-[1440px] mx-auto">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center rounded-lg shadow-sm">
+              <div className="w-8 h-8 bg-secondary flex items-center justify-center rounded-lg shadow-sm">
                 <PenTool className="w-4 h-4 text-white" />
               </div>
               <span className="text-lg sm:text-xl font-bold text-primary tracking-tight font-headline whitespace-nowrap">Invoice Studio</span>
@@ -81,48 +81,64 @@ export function Landing() {
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             <Link to="/login" className="hidden sm:inline px-4 py-2 text-sm font-medium text-primary hover:text-secondary transition-colors">Sign In</Link>
-            <Link to="/signup" className="px-4 sm:px-6 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all">Get Started</Link>
+            <Link to="/signup" className="px-4 sm:px-6 py-2 bg-secondary text-white rounded-lg text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all">Get Started</Link>
           </div>
         </div>
       </nav>
 
       <main>
         {/* Hero Section */}
-        <section className="relative pt-16 sm:pt-20 pb-20 sm:pb-32 overflow-hidden px-4 sm:px-8">
-          <div className="max-w-[1440px] mx-auto text-center mb-12 sm:mb-16">
-            <h1 className="font-headline text-[40px] sm:text-[48px] md:text-[64px] leading-tight mb-6 tracking-tighter max-w-4xl mx-auto">
-              Professional invoicing, <br /><span className="text-secondary">built for builders.</span>
+        <section className="relative pt-20 sm:pt-28 pb-24 sm:pb-36 overflow-hidden px-4 sm:px-8">
+          <div className="max-w-[1440px] mx-auto text-center mb-14 sm:mb-20 relative z-10">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-secondary/20 bg-secondary/5 text-secondary text-xs font-semibold mb-8 tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+              Now available — Ship invoices in seconds
+            </div>
+
+            <h1 className="font-headline text-[44px] sm:text-[56px] md:text-[72px] leading-[1.05] mb-7 tracking-tight max-w-5xl mx-auto">
+              Invoicing that{' '}
+              <span className="text-secondary">
+                works as hard
+              </span>{' '}
+              as you do.
             </h1>
-            <p className="text-lg text-on-surface-variant max-w-2xl mx-auto mb-10">
-              Manage clients, track revenue, and get paid faster with systematic precision. The all-in-one financial toolkit designed for high-performance freelancers.
+            <p className="text-lg sm:text-xl text-on-surface-variant max-w-2xl mx-auto mb-12 leading-relaxed">
+              Create professional invoices with live previews, download as PDF, and manage clients and products — all in one clean, fast interface.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 px-2">
-              <Link to="/signup" className="px-8 py-4 bg-secondary text-white rounded-xl text-lg font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all">
-                Get Started Free
+              <Link
+                to="/signup"
+                className="group relative px-10 py-4 bg-secondary text-white rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                <span className="relative z-10">Get Started Free</span>
               </Link>
-              <button className="px-8 py-4 bg-surface-container-low border border-border-subtle rounded-xl text-lg font-semibold hover:bg-surface-container transition-all flex items-center justify-center gap-2">
-                <PlayCircle className="w-5 h-5" />
+              <Link
+                to="/login"
+                className="px-10 py-4 bg-surface-container-low border border-border-subtle rounded-xl text-lg font-semibold hover:bg-surface-container hover:border-secondary/30 transition-all flex items-center justify-center gap-2"
+              >
+                <PlayCircle className="w-5 h-5 text-secondary" />
                 See in Action
-              </button>
+              </Link>
             </div>
           </div>
-          
+
           {/* Dashboard Preview */}
-          <div className="max-w-[1200px] mx-auto relative">
-            <div className="bg-surface-container-lowest border border-border-subtle rounded-2xl overflow-hidden shadow-xl" style={{ boxShadow: '0 0 80px -20px rgba(0, 81, 213, 0.15)' }}>
-              <img 
-                alt="Professional fintech dashboard in a modern home office" 
-                className="w-full h-full object-cover" 
-                src="/images/hero-dashboard.png" 
+          <div className="max-w-[1100px] mx-auto relative z-10">
+            <div className="relative bg-surface-container-lowest border border-border-subtle rounded-2xl overflow-hidden shadow-xl">
+              <img
+                alt="Professional fintech dashboard in a modern home office"
+                className="w-full h-full object-cover"
+                src="/images/hero-dashboard.png"
               />
             </div>
           </div>
         </section>
 
         {/* Social Proof */}
-        <section className="py-12 border-y border-border-subtle bg-surface-container-lowest">
+        <section className="py-14 border-y border-border-subtle bg-surface-container-lowest">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
-            <p className="text-center text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-8">Trusted by 10,000+ top-tier freelancers</p>
+            <p className="text-center text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-8">Trusted by freelancers worldwide</p>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
               <img className="h-6" src="/images/logo-vertex.png" alt="Vertex Design" />
               <img className="h-6" src="/images/logo-codestack.png" alt="CodeStack" />
@@ -134,28 +150,30 @@ export function Landing() {
         </section>
 
         {/* Key Features */}
-        <section id="features" className="py-16 sm:py-24 px-4 sm:px-8">
+        <section id="features" className="py-20 sm:py-28 px-4 sm:px-8">
           <div className="max-w-[1440px] mx-auto">
+            <div className="text-center mb-14">
+              <h2 className="font-headline text-3xl sm:text-[40px] mb-4">Everything you need to invoice professionally</h2>
+              <p className="text-lg text-on-surface-variant max-w-xl mx-auto">Create, manage, and download invoices — with a clean interface that stays out of your way.</p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {features.map((feature) => (
-                <div 
+                <div
                   key={feature.name}
-                  className="p-6 bg-surface-container-lowest border border-border-subtle rounded-2xl flex flex-col gap-4 hover:border-secondary transition-all duration-200"
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                  className="group p-6 bg-surface-container-lowest border border-border-subtle rounded-2xl flex flex-col gap-4 hover:border-secondary/40 hover:shadow-lg hover:shadow-secondary/5 transition-all duration-300"
                 >
                   {feature.hasImage ? (
-                    <div className="w-full h-32 mb-4 overflow-hidden rounded-lg">
-                      <img alt={feature.name} className="w-full h-full object-cover" src={feature.image} />
+                    <div className="w-full h-32 mb-2 overflow-hidden rounded-lg">
+                      <img alt={feature.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={feature.image} />
                     </div>
                   ) : feature.icon ? (
-                    <div className="w-12 h-12 bg-secondary/10 text-secondary flex items-center justify-center rounded-lg">
+                    <div className="w-12 h-12 bg-secondary/10 text-secondary flex items-center justify-center rounded-xl">
                       <feature.icon className="w-6 h-6" />
                     </div>
                   ) : null}
                   <div>
                     <h3 className="font-headline text-base font-semibold mb-2">{feature.name}</h3>
-                    <p className="text-sm text-on-surface-variant">{feature.description}</p>
+                    <p className="text-sm text-on-surface-variant leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -164,10 +182,10 @@ export function Landing() {
         </section>
 
         {/* Invoice Builder Feature */}
-        <section className="py-16 sm:py-24 bg-surface-container-low border-y border-border-subtle px-4 sm:px-8">
-          <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <section id="about" className="py-20 sm:py-28 bg-surface-container-low border-y border-border-subtle px-4 sm:px-8">
+          <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="order-2 lg:order-1">
-              <div className="bg-surface-container-lowest rounded-2xl border border-border-subtle overflow-hidden shadow-sm">
+              <div className="bg-surface-container-lowest rounded-2xl border border-border-subtle overflow-hidden shadow-xl shadow-black/5">
                 <div className="flex border-b border-border-subtle">
                   <div className="w-1/3 p-6 border-r border-border-subtle bg-surface">
                     <h4 className="text-xs font-bold text-on-surface-variant mb-6 uppercase tracking-wider">Editor</h4>
@@ -215,22 +233,23 @@ export function Landing() {
               </div>
             </div>
             <div className="order-1 lg:order-2">
-              <h2 className="font-headline text-[40px] leading-tight mb-6">The Invoice Builder</h2>
-              <p className="text-lg text-on-surface-variant mb-8">
+              <span className="text-secondary text-xs font-bold uppercase tracking-widest mb-4 block">Live Preview</span>
+              <h2 className="font-headline text-[40px] sm:text-[48px] leading-tight mb-6">The Invoice Builder</h2>
+              <p className="text-lg text-on-surface-variant mb-8 leading-relaxed">
                 Experience our unique dual-pane builder. Edit your data on the left, watch your professional document update in real-time on the right. No guesswork, just precision.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-center gap-3 text-sm">
                   <CheckCircle className="w-5 h-5 text-status-paid flex-shrink-0" />
-                  Dynamic live-preview with industrial-grade layouts.
+                  Live dual-pane preview — edit on the left, see results on the right.
                 </li>
                 <li className="flex items-center gap-3 text-sm">
                   <CheckCircle className="w-5 h-5 text-status-paid flex-shrink-0" />
-                  One-click export to PDF or direct secure link.
+                  Download as PDF with print-ready formatting.
                 </li>
                 <li className="flex items-center gap-3 text-sm">
                   <CheckCircle className="w-5 h-5 text-status-paid flex-shrink-0" />
-                  Custom branding and color profile matching.
+                  Five professional templates to match your style.
                 </li>
               </ul>
             </div>
@@ -238,36 +257,40 @@ export function Landing() {
         </section>
 
         {/* Testimonial */}
-        <section className="py-16 sm:py-24 px-4 sm:px-8">
-          <div className="max-w-[800px] mx-auto text-center">
-            <span className="text-secondary text-4xl mb-6 block">"</span>
-            <blockquote className="text-xl italic mb-8 text-primary">
-              "Invoice Studio has completely streamlined my billing workflow. I used to spend hours every month chasing payments and manually calculating revenue. Now it's all automated, allowing me to focus entirely on building products for my clients."
+        <section className="py-20 sm:py-28 px-4 sm:px-8">
+          <div className="max-w-[700px] mx-auto text-center">
+            <span className="text-secondary/30 text-[80px] font-headline leading-none block mb-2">&ldquo;</span>
+            <blockquote className="text-xl sm:text-2xl mb-10 text-primary leading-relaxed">
+              Invoice Studio has completely streamlined my invoicing workflow. I used to spend hours every month formatting documents and managing client details. Now everything is organized in one place, and I can generate professional invoices in seconds.
             </blockquote>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-full overflow-hidden border border-border-subtle">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-secondary/20 shadow-md">
                 <img className="w-full h-full object-cover" src="/images/avatar-alex.png" alt="Alex Rivera" />
               </div>
-              <p className="font-semibold text-primary">Alex Rivera</p>
-              <p className="text-xs text-on-surface-variant uppercase tracking-widest">Senior Full-Stack Developer</p>
+              <div>
+                <p className="font-semibold text-primary">Alex Rivera</p>
+                <p className="text-xs text-on-surface-variant uppercase tracking-widest mt-0.5">Senior Full-Stack Developer</p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Final CTA */}
-        <section className="py-16 sm:py-24 px-4 sm:px-8 relative overflow-hidden bg-secondary">
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-          </div>
-          <div className="max-w-[1440px] mx-auto text-center relative z-10">
-            <h2 className="font-headline text-[40px] sm:text-[48px] md:text-[56px] text-white mb-8">Ready to get serious about your business?</h2>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto mb-12">
-              Join thousands of professionals who have optimized their financial operations with Invoice Studio. Start your 14-day free trial today.
+        <section className="py-20 sm:py-28 px-4 sm:px-8 bg-secondary">
+          <div className="max-w-[1440px] mx-auto text-center">
+            <h2 className="font-headline text-[40px] sm:text-[48px] md:text-[56px] text-white mb-8 leading-tight">
+              Ready to get serious<br className="hidden sm:block" /> about your business?
+            </h2>
+            <p className="text-lg text-white/60 max-w-2xl mx-auto mb-12 leading-relaxed">
+              Join thousands of freelancers who create professional invoices faster with Invoice Studio.
             </p>
-            <Link to="/signup" className="inline-block px-12 py-5 bg-white text-secondary rounded-xl text-lg font-semibold hover:scale-[1.05] active:scale-[0.98] transition-all shadow-lg">
-              Join Invoice Studio
+            <Link
+              to="/signup"
+              className="inline-block px-12 py-5 bg-white text-secondary rounded-xl text-lg font-semibold hover:scale-[1.05] active:scale-[0.98] transition-all shadow-xl shadow-black/20"
+            >
+              Get Started Free
             </Link>
-            <p className="mt-6 text-sm text-white/50">No credit card required. Cancel anytime.</p>
+            <p className="mt-6 text-sm text-white/40">No credit card required. Cancel anytime.</p>
           </div>
         </section>
       </main>
