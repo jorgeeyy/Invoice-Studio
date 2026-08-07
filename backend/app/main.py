@@ -1,15 +1,27 @@
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.db import Base, SessionLocal, engine
+from app.db import SessionLocal
 from app.models import Business, User
 from app.routers import auth, business, clients, invoices, products
 
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+
 DEMO_EMAIL = "demo@example.com"
 DEMO_PASSWORD = "demo1234"
+
+
+def run_migrations() -> None:
+    cfg = Config()
+    cfg.set_main_option("script_location", str(BACKEND_DIR / "alembic"))
+    command.upgrade(cfg, "head")
 
 
 def seed_demo_user() -> None:
@@ -49,7 +61,7 @@ def seed_demo_user() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    run_migrations()
     if settings.database_url.startswith("sqlite"):
         seed_demo_user()
     yield
