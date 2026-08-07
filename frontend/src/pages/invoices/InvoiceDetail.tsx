@@ -1,28 +1,28 @@
 import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Download, 
-  Send, 
   MoreHorizontal,
   FileText,
   Printer,
-  Edit2,
   Copy,
   Trash2,
-  X,
-  Check,
+  Loader2,
 } from 'lucide-react';
-import { useInvoice, useUpdateInvoice, useDeleteInvoice } from '@/hooks/useInvoices';
+import {
+  useInvoice,
+  useUpdateInvoice,
+  useDeleteInvoice,
+  useDuplicateInvoice,
+} from '@/hooks/useInvoices';
+import { useBusiness } from '@/hooks/useBusiness';
+import { downloadInvoicePdf } from '@/api/invoices';
 import type { Currency } from '@/types';
 
 const statusColors: Record<string, string> = {
   draft: 'bg-gray-100 text-gray-700',
   final: 'bg-blue-100 text-blue-700',
-  sent: 'bg-status-sent/10 text-status-sent',
-  paid: 'bg-status-paid/10 text-status-paid',
-  overdue: 'bg-status-error/10 text-status-error',
-  cancelled: 'bg-gray-100 text-gray-500',
 };
 
 const currencySymbol: Record<Currency, string> = {
@@ -38,11 +38,14 @@ export function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: invoice, isLoading } = useInvoice(id || '');
+  const { data: business } = useBusiness();
   const updateInvoice = useUpdateInvoice();
   const deleteInvoice = useDeleteInvoice();
+  const duplicateInvoice = useDuplicateInvoice();
 
   const [showMenu, setShowMenu] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   if (isLoading) {
     return (
@@ -73,41 +76,51 @@ export function InvoiceDetail() {
     window.print();
   };
 
-  const handleDownload = () => {
-    // TODO: Connect to PDF generation API
-    console.log('Download PDF for invoice:', invoice.id);
-    alert('PDF download will be available after backend integration.');
-  };
-
-  const handleSend = async () => {
+  const handleDownload = async () => {
+    if (!invoice || downloading) return;
+    setDownloading(true);
     try {
-      await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'sent' } });
-    } catch (error) {
-      console.error('Failed to send invoice:', error);
+      const blob = await downloadInvoicePdf(invoice.id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${invoice.invoiceNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download PDF:', err);
+    } finally {
+      setDownloading(false);
     }
   };
 
-  const handleMarkAsPaid = async () => {
+  const handleSetFinal = async () => {
     try {
-      await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'paid' } });
+      await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'final' } });
+    } catch (err) {
+      console.error('Failed to finalize invoice:', err);
+    }
+  };
+
+  const handleReopen = async () => {
+    try {
+      await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'draft' } });
       setShowMenu(false);
-    } catch (error) {
-      console.error('Failed to update invoice:', error);
+    } catch (err) {
+      console.error('Failed to reopen invoice:', err);
     }
   };
 
-  const handleCancel = async () => {
-    try {
-      await updateInvoice.mutateAsync({ id: invoice.id, input: { status: 'cancelled' } });
-      setShowMenu(false);
-    } catch (error) {
-      console.error('Failed to cancel invoice:', error);
-    }
-  };
-
-  const handleDuplicate = () => {
-    navigate('/invoices/create', { state: { duplicateFrom: invoice } });
+  const handleDuplicate = async () => {
     setShowMenu(false);
+    try {
+      const dup = await duplicateInvoice.mutateAsync(invoice.id);
+      navigate(`/invoices/${dup.id}`);
+    } catch (err) {
+      console.error('Failed to duplicate invoice:', err);
+    }
   };
 
   const handleDelete = async () => {
@@ -153,19 +166,19 @@ export function InvoiceDetail() {
           </button>
           <button 
             onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors"
+            disabled={downloading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle font-semibold text-sm text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-60"
           >
-            <Download className="w-4 h-4" />
-            Download
+            {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {downloading ? 'Preparing...' : 'Download'}
           </button>
           {invoice.status === 'draft' && (
             <button 
-              onClick={handleSend}
+              onClick={handleSetFinal}
               disabled={updateInvoice.isPending}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white font-semibold text-sm hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
             >
-              <Send className="w-4 h-4" />
-              {updateInvoice.isPending ? 'Sending...' : 'Send'}
+              {updateInvoice.isPending ? 'Finalizing...' : 'Mark as Final'}
             </button>
           )}
           <div className="relative">
@@ -177,23 +190,14 @@ export function InvoiceDetail() {
             </button>
             {showMenu && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-border-subtle py-1 z-10">
-                {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
+                {invoice.status === 'final' && (
                   <button
-                    onClick={handleMarkAsPaid}
+                    onClick={handleReopen}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
                   >
-                    <Check className="w-4 h-4 text-status-paid" />
-                    Mark as Paid
+                    Reopen as Draft
                   </button>
                 )}
-                <Link
-                  to={`/invoices/${invoice.id}/edit`}
-                  onClick={() => setShowMenu(false)}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  Edit Invoice
-                </Link>
                 <button
                   onClick={handleDuplicate}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
@@ -201,15 +205,6 @@ export function InvoiceDetail() {
                   <Copy className="w-4 h-4" />
                   Duplicate
                 </button>
-                {invoice.status !== 'cancelled' && (
-                  <button
-                    onClick={handleCancel}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                    Cancel Invoice
-                  </button>
-                )}
                 <hr className="my-1 border-border-subtle" />
                 <button
                   onClick={() => { setDeleteConfirm(true); setShowMenu(false); }}
@@ -253,10 +248,16 @@ export function InvoiceDetail() {
           <div>
             <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">From</h3>
             <div>
-              <p className="font-semibold text-primary">Your Company</p>
-              <p className="text-sm text-on-surface-variant">123 Business Ave</p>
-              <p className="text-sm text-on-surface-variant">San Francisco, CA 94105</p>
-              <p className="text-sm text-on-surface-variant">hello@yourcompany.com</p>
+              <p className="font-semibold text-primary">{business?.name || 'Your Company'}</p>
+              {business?.address?.street && <p className="text-sm text-on-surface-variant">{business.address.street}</p>}
+              {business?.address?.city && (
+                <p className="text-sm text-on-surface-variant">
+                  {[business.address.city, business.address.state, business.address.zipCode]
+                    .filter(Boolean)
+                    .join(', ')}
+                </p>
+              )}
+              {business?.email && <p className="text-sm text-on-surface-variant">{business.email}</p>}
             </div>
           </div>
           <div>

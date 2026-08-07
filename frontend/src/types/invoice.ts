@@ -10,7 +10,7 @@ export interface Invoice {
   clientId: string;
   clientName: string;
   clientEmail: string;
-  status: 'draft' | 'final' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  status: 'draft' | 'final';
   issueDate: string;
   currency: Currency;
   reference?: string;

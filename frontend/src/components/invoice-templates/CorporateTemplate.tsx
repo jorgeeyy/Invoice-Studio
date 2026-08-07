@@ -34,8 +34,7 @@ export function CorporateTemplate({
 
   return (
     <div
-      className="bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] flex flex-col shadow-sm rounded-xl border border-border-subtle overflow-hidden"
-      style={{ aspectRatio: '1 / 1.4142' }}
+      className="invoice-sheet bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] flex flex-col shadow-sm rounded-xl border border-border-subtle overflow-hidden print:max-w-none print:rounded-none print:shadow-none print:border-0 print:overflow-visible"
     >
       <div className="bg-neutral-900 text-neutral-50 p-8 flex justify-between items-start gap-8">
         <div>

@@ -4,9 +4,21 @@ import { ArrowLeft, Plus, Trash2, Send, HelpCircle, Bell, X, Landmark, Smartphon
 import { useClients, useCreateClient } from '@/hooks/useClients';
 import { useProducts } from '@/hooks/useProducts';
 import { useCreateInvoice } from '@/hooks/useInvoices';
+import { useBusiness } from '@/hooks/useBusiness';
 import { createInvoiceSchema, clientSchema } from '@/lib/validations';
 import { InvoicePreview } from '@/components/InvoicePreview';
-import type { Currency, DiscountType, InvoiceTemplate } from '@/types';
+import type { Currency, DiscountType, InvoiceTemplate, PaymentTerms } from '@/types';
+
+const PAYMENT_TERMS_OPTIONS: Array<{ value: PaymentTerms; label: string }> = [
+  { value: 'due_on_receipt', label: 'Due on Receipt' },
+  { value: 'net_15', label: 'Net 15' },
+  { value: 'net_30', label: 'Net 30' },
+  { value: 'net_60', label: 'Net 60' },
+  { value: 'custom', label: 'Custom terms' },
+];
+
+const paymentTermsLabel = (terms: string): string =>
+  PAYMENT_TERMS_OPTIONS.find((opt) => opt.value === terms)?.label || terms.replace(/_/g, ' ');
 
 interface ClientFormData {
   name: string;
@@ -53,6 +65,7 @@ export function CreateInvoice() {
   const { data: products, isLoading: productsLoading } = useProducts();
   const createInvoice = useCreateInvoice();
   const createClient = useCreateClient();
+  const { data: business } = useBusiness();
 
   const [clientId, setClientId] = useState('');
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
@@ -60,7 +73,7 @@ export function CreateInvoice() {
   const [reference, setReference] = useState('');
   const [notes, setNotes] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
-  const [paymentTerms, setPaymentTerms] = useState('Net 30');
+  const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>('net_30');
   const [activePaymentMethods, setActivePaymentMethods] = useState<Set<string>>(new Set());
   const [paymentData, setPaymentData] = useState({
     bank: { name: '', accountName: '', accountNumber: '', routingNumber: '', iban: '', swift: '' },
@@ -253,7 +266,7 @@ export function CreateInvoice() {
       const invoice = await createInvoice.mutateAsync(result.data);
       navigate(`/invoices/${invoice.id}`);
     } catch (error) {
-      console.error('Failed to create invoice:', error);
+      setErrors({ form: error instanceof Error ? error.message : 'Failed to create invoice' });
     }
   };
 
@@ -523,13 +536,15 @@ export function CreateInvoice() {
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Payment Terms</label>
-                <input 
-                  type="text"
+                <select
                   value={paymentTerms}
-                  onChange={(e) => setPaymentTerms(e.target.value)}
-                  className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest"
-                  placeholder="Net 30, Due on Receipt, etc."
-                />
+                  onChange={(e) => setPaymentTerms(e.target.value as PaymentTerms)}
+                  className="w-full h-10 border border-border-subtle rounded px-3 text-sm bg-surface-container-lowest appearance-none"
+                >
+                  {PAYMENT_TERMS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Notes</label>
@@ -668,18 +683,25 @@ export function CreateInvoice() {
           </div>
 
           {/* Sticky Actions */}
-          <div className="p-6 border-t border-border-subtle bg-surface-container-lowest mt-auto flex gap-3">
-            <button className="flex-1 h-11 border border-border-subtle rounded font-semibold text-sm hover:bg-surface-container transition-colors">
-              Save Draft
-            </button>
-            <button 
-              onClick={handleSubmit}
-              disabled={createInvoice.isPending}
-              className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-            >
-              {createInvoice.isPending ? 'Sending...' : 'Send Invoice'}
-              <Send className="w-4 h-4" />
-            </button>
+          <div className="p-6 border-t border-border-subtle bg-surface-container-lowest mt-auto flex flex-col gap-3">
+            {errors.form && (
+              <p className="text-status-error text-xs bg-status-error/5 border border-status-error/20 rounded-lg px-3 py-2">
+                {errors.form}
+              </p>
+            )}
+            <div className="flex gap-3">
+              <button className="flex-1 h-11 border border-border-subtle rounded font-semibold text-sm hover:bg-surface-container transition-colors">
+                Save Draft
+              </button>
+              <button 
+                onClick={handleSubmit}
+                disabled={createInvoice.isPending}
+                className="flex-1 h-11 bg-secondary text-white rounded font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              >
+                {createInvoice.isPending ? 'Sending...' : 'Send Invoice'}
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -688,7 +710,15 @@ export function CreateInvoice() {
           <InvoicePreview
             template={template}
             currency={currency}
-            companyInfo={{ name: 'Your Company', address: 'Your Address, City, State ZIP', email: 'email@company.com' }}
+            companyInfo={{
+              name: business?.name || 'Your Company',
+              address: business?.address
+                ? [business.address.street, business.address.city, business.address.state, business.address.country]
+                    .filter(Boolean)
+                    .join(', ')
+                : 'Your Address, City, State ZIP',
+              email: business?.email || 'email@company.com',
+            }}
             clientInfo={{
               name: selectedClient?.name || 'Client Name',
               company: selectedClient?.company || 'Company',
@@ -705,7 +735,7 @@ export function CreateInvoice() {
             tax={tax}
             total={total}
             notes={notes}
-            paymentTerms={paymentTerms}
+            paymentTerms={paymentTermsLabel(paymentTerms)}
             paymentDetails={{
               bank: paymentData.bank,
               momo: paymentData.momo,

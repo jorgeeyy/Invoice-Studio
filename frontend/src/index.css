@@ -73,3 +73,21 @@ body {
 .font-headline {
   font-family: 'Geist', system-ui, sans-serif;
 }
+
+/* Invoice template sheet: fixed A4 proportions on screen,
+   full-flow A4 pages when sent to PDF/print. */
+.invoice-sheet {
+  aspect-ratio: 1 / 1.4142;
+}
+
+@media print {
+  .invoice-sheet {
+    aspect-ratio: auto !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+}

@@ -26,8 +26,7 @@ export function MinimalTemplate({
 
   return (
     <div
-      className="bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] p-12 flex flex-col shadow-sm rounded-xl border border-border-subtle overflow-hidden"
-      style={{ aspectRatio: '1 / 1.4142' }}
+      className="invoice-sheet bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] p-12 flex flex-col shadow-sm rounded-xl border border-border-subtle overflow-hidden print:max-w-none print:rounded-none print:shadow-none print:border-0 print:overflow-visible"
     >
       <div className="flex flex-col md:flex-row justify-between items-start mb-24 gap-8">
         <div>

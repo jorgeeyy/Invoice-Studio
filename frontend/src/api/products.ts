@@ -1,57 +1,22 @@
 import type { Product, CreateProductInput, UpdateProductInput } from '@/types';
-import { mockProducts } from './mock-data';
-
-let products: Product[] = [...mockProducts];
+import { apiClient } from './client';
 
 export async function fetchProducts(): Promise<Product[]> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return products;
+  return apiClient.get<Product[]>('/products');
 }
 
-export async function fetchProductById(id: string): Promise<Product | undefined> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return products.find((product) => product.id === id);
+export async function fetchProductById(id: string): Promise<Product> {
+  return apiClient.get<Product>(`/products/${id}`);
 }
 
 export async function createProduct(input: CreateProductInput): Promise<Product> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const newProduct: Product = {
-    id: `${products.length + 1}`,
-    name: input.name,
-    description: input.description,
-    unitPrice: input.unitPrice,
-    currency: input.currency || 'USD',
-    taxRate: input.taxRate || 0,
-    quantity: input.quantity || 1,
-    category: input.category,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  products.push(newProduct);
-  return newProduct;
+  return apiClient.post<Product>('/products', input);
 }
 
 export async function updateProduct(id: string, input: UpdateProductInput): Promise<Product> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const index = products.findIndex((product) => product.id === id);
-  if (index === -1) {
-    throw new Error('Product not found');
-  }
-
-  const updatedProduct: Product = {
-    ...products[index],
-    ...input,
-    updatedAt: new Date().toISOString(),
-  };
-
-  products[index] = updatedProduct;
-  return updatedProduct;
+  return apiClient.put<Product>(`/products/${id}`, input);
 }
 
 export async function deleteProduct(id: string): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  products = products.filter((product) => product.id !== id);
+  return apiClient.delete(`/products/${id}`);
 }

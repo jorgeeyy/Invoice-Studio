@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Save, Upload, Building2, FileText, Palette, User, Shield } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Save, Upload, Building2, FileText, Palette, User, Shield, Loader2 } from 'lucide-react';
 import { businessSettingsSchema } from '@/lib/validations';
+import { useBusiness, useUpdateBusiness } from '@/hooks/useBusiness';
 import type { Currency, PaymentTerms } from '@/types';
 
 interface SettingsFormData {
@@ -53,10 +54,38 @@ const defaultFormData: SettingsFormData = {
 };
 
 export function BusinessSettings() {
+  const { data: business, isLoading } = useBusiness();
+  const updateBusiness = useUpdateBusiness();
   const [formData, setFormData] = useState<SettingsFormData>(defaultFormData);
   const [activeTab, setActiveTab] = useState<'business' | 'invoices' | 'branding' | 'profile' | 'security'>('business');
   const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!business) return;
+    setFormData({
+      name: business.name || '',
+      email: business.email || '',
+      phone: business.phone || '',
+      website: business.website || '',
+      taxId: business.taxId || '',
+      address: {
+        street: business.address?.street || '',
+        city: business.address?.city || '',
+        state: business.address?.state || '',
+        zipCode: business.address?.zipCode || '',
+        country: business.address?.country || '',
+      },
+      defaultCurrency: business.defaultCurrency,
+      defaultTaxRate: business.defaultTaxRate,
+      defaultTaxName: business.defaultTaxName,
+      invoicePrefix: business.invoicePrefix,
+      defaultPaymentTerms: business.defaultPaymentTerms,
+      bankDetails: business.bankDetails || '',
+      mobileMoneyDetails: business.mobileMoneyDetails || '',
+      paymentInstructions: business.paymentInstructions || '',
+    });
+  }, [business]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -75,7 +104,7 @@ export function BusinessSettings() {
     setSaved(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     const result = businessSettingsSchema.safeParse(formData);
@@ -87,9 +116,13 @@ export function BusinessSettings() {
       setErrors(fieldErrors);
       return;
     }
-    console.log('Save settings:', result.data);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      await updateBusiness.mutateAsync(result.data);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setErrors({ form: err instanceof Error ? err.message : 'Failed to save settings' });
+    }
   };
 
   const tabs = [
@@ -110,6 +143,9 @@ export function BusinessSettings() {
         </div>
         {saved && (
           <span className="text-status-paid text-sm font-semibold">Settings saved successfully!</span>
+        )}
+        {errors.form && (
+          <span className="text-status-error text-sm font-semibold">{errors.form}</span>
         )}
       </div>
 
@@ -435,10 +471,11 @@ export function BusinessSettings() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-secondary text-white font-semibold hover:opacity-90 transition-all shadow-sm"
+            disabled={updateBusiness.isPending || isLoading}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-secondary text-white font-semibold hover:opacity-90 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <Save className="w-4 h-4" />
-            Save Settings
+            {updateBusiness.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {updateBusiness.isPending ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
       </form>

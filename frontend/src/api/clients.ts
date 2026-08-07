@@ -1,52 +1,22 @@
 import type { Client, CreateClientInput, UpdateClientInput } from '@/types';
-import { mockClients } from './mock-data';
-
-let clients = [...mockClients];
+import { apiClient } from './client';
 
 export async function fetchClients(): Promise<Client[]> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return clients;
+  return apiClient.get<Client[]>('/clients');
 }
 
-export async function fetchClientById(id: string): Promise<Client | undefined> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return clients.find((client) => client.id === id);
+export async function fetchClientById(id: string): Promise<Client> {
+  return apiClient.get<Client>(`/clients/${id}`);
 }
 
 export async function createClient(input: CreateClientInput): Promise<Client> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const newClient: Client = {
-    id: `${clients.length + 1}`,
-    ...input,
-    status: input.status || 'active',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  clients.push(newClient);
-  return newClient;
+  return apiClient.post<Client>('/clients', input);
 }
 
 export async function updateClient(id: string, input: UpdateClientInput): Promise<Client> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const index = clients.findIndex((client) => client.id === id);
-  if (index === -1) {
-    throw new Error('Client not found');
-  }
-
-  const updatedClient = {
-    ...clients[index],
-    ...input,
-    updatedAt: new Date().toISOString(),
-  };
-
-  clients[index] = updatedClient;
-  return updatedClient;
+  return apiClient.put<Client>(`/clients/${id}`, input);
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  clients = clients.filter((client) => client.id !== id);
+  return apiClient.delete(`/clients/${id}`);
 }

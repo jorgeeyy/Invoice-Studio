@@ -27,8 +27,7 @@ export function ModernTemplate({
 
   return (
     <div
-      className="bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] p-10 lg:p-12 flex flex-col lg:flex-row gap-12 shadow-sm rounded-xl border border-border-subtle overflow-hidden relative"
-      style={{ aspectRatio: '1 / 1.4142' }}
+      className="invoice-sheet bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] p-10 lg:p-12 flex flex-col lg:flex-row gap-12 shadow-sm rounded-xl border border-border-subtle overflow-hidden relative print:max-w-none print:rounded-none print:shadow-none print:border-0 print:overflow-visible"
     >
       <div className="absolute top-0 left-0 w-full h-1 bg-secondary" />
 

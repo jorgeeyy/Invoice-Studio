@@ -3,21 +3,14 @@ import { Link } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
-  MoreHorizontal,
   FileText,
-  Download,
-  Send,
 } from 'lucide-react';
 import { useInvoices } from '@/hooks/useInvoices';
 import type { Currency } from '@/types';
 
 const statusColors: Record<string, string> = {
-  draft: 'bg-status-draft/10 text-status-draft',
-  final: 'bg-status-draft/10 text-status-draft',
-  sent: 'bg-status-sent/10 text-status-sent',
-  paid: 'bg-status-paid/10 text-status-paid',
-  overdue: 'bg-status-error/10 text-status-error',
-  cancelled: 'bg-status-cancelled/10 text-status-cancelled',
+  draft: 'bg-gray-100 text-gray-700',
+  final: 'bg-blue-100 text-blue-700',
 };
 
 const currencySymbol: Record<Currency, string> = {
@@ -79,10 +72,6 @@ export function InvoiceList() {
           <option value="all">All Status</option>
           <option value="draft">Draft</option>
           <option value="final">Final</option>
-          <option value="sent">Sent</option>
-          <option value="paid">Paid</option>
-          <option value="overdue">Overdue</option>
-          <option value="cancelled">Cancelled</option>
         </select>
       </div>
 
@@ -102,8 +91,7 @@ export function InvoiceList() {
                   <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Client</th>
                   <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Amount</th>
                   <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Due Date</th>
-                  <th className="px-6 py-3 border-b border-border-subtle"></th>
+                  <th className="px-6 py-3 text-xs font-semibold text-on-surface-variant border-b border-border-subtle uppercase tracking-wider">Issue Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-subtle">
@@ -134,21 +122,6 @@ export function InvoiceList() {
                     </td>
                     <td className="px-6 py-4 text-sm text-on-surface-variant">
                       {new Date(invoice.issueDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant" title="Download">
-                          <Download className="w-4 h-4" />
-                        </button>
-                        {invoice.status === 'draft' && (
-                          <button className="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant" title="Send">
-                            <Send className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button className="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 ))}

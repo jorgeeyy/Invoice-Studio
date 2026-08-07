@@ -25,8 +25,7 @@ export function ElegantTemplate({
 
   return (
     <div
-      className="bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] flex flex-col shadow-sm rounded-xl border border-border-subtle overflow-hidden relative"
-      style={{ aspectRatio: '1 / 1.4142' }}
+      className="invoice-sheet bg-surface-container-lowest w-full max-w-[800px] min-h-[842px] flex flex-col shadow-sm rounded-xl border border-border-subtle overflow-hidden relative print:max-w-none print:rounded-none print:shadow-none print:border-0 print:overflow-visible"
     >
       <div className="h-1 bg-primary w-full absolute top-0 left-0" />
       <div className="p-12 lg:p-14 flex-1 flex flex-col">

@@ -11,6 +11,7 @@ import { InvoiceDetail } from '@/pages/invoices/InvoiceDetail';
 import { ClientList } from '@/pages/clients/ClientList';
 import { ProductList } from '@/pages/products/ProductList';
 import { BusinessSettings } from '@/pages/settings/BusinessSettings';
+import { PrintInvoice } from '@/pages/invoices/PrintInvoice';
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,9 @@ function App() {
 
           {/* Redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
+          {/* Standalone print route (outside AppLayout) */}
+          <Route path="/print/:id" element={<PrintInvoice />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

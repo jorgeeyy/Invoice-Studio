@@ -5,12 +5,8 @@ import { useClients } from '@/hooks/useClients';
 import { useProducts } from '@/hooks/useProducts';
 
 const statusColors: Record<string, string> = {
-  draft: 'bg-status-draft/10 text-status-draft',
-  final: 'bg-status-draft/10 text-status-draft',
-  sent: 'bg-status-sent/10 text-status-sent',
-  paid: 'bg-status-paid/10 text-status-paid',
-  overdue: 'bg-status-error/10 text-status-error',
-  cancelled: 'bg-status-cancelled/10 text-status-cancelled',
+  draft: 'bg-gray-100 text-gray-700',
+  final: 'bg-blue-100 text-blue-700',
 };
 
 export function Dashboard() {

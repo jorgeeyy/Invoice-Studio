@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOff, PenTool, Sun, Moon } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { Eye, EyeOff, PenTool, Sun, Moon, Loader2 } from 'lucide-react';
 import { signupSchema } from '@/lib/validations';
 import { useTheme } from '@/components/ThemeProvider';
+import { register } from '@/api/auth';
 
 export function Signup() {
   const [name, setName] = useState('');
@@ -11,9 +13,12 @@ export function Signup() {
   const [company, setCompany] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     const result = signupSchema.safeParse({ name, email, password, company: company || undefined });
@@ -25,7 +30,16 @@ export function Signup() {
       setErrors(fieldErrors);
       return;
     }
-    console.log('Signup:', result.data);
+    setSubmitting(true);
+    try {
+      const res = await register(result.data);
+      queryClient.setQueryData(['session'], res.user);
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      setErrors({ form: err instanceof Error ? err.message : 'Unable to create account' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -173,11 +187,19 @@ export function Signup() {
               </label>
             </div>
 
+            {errors.form && (
+              <div className="text-status-error text-sm bg-status-error/5 border border-status-error/20 rounded-lg px-3 py-2">
+                {errors.form}
+              </div>
+            )}
+
             <div>
               <button
                 type="submit"
-                className="w-full bg-secondary text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-all shadow-sm"
+                disabled={submitting}
+                className="w-full bg-secondary text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 Create account
               </button>
             </div>

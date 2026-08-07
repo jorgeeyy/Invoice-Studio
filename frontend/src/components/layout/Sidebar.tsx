@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
@@ -6,8 +6,10 @@ import {
   Users,
   Settings,
   PenTool,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSession, useLogout } from '@/hooks/useSession';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -17,6 +19,16 @@ const navigation = [
 ];
 
 export function Sidebar() {
+  const navigate = useNavigate();
+  const { data: user } = useSession();
+  const logout = useLogout();
+  const initial = user?.name?.charAt(0)?.toUpperCase() || '?';
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <aside className="hidden md:flex h-screen w-60 fixed left-0 top-0 bg-surface border-r border-border-subtle flex-col py-6 px-4 z-50">
       <div className="mb-10 px-2 flex items-center gap-3">
@@ -67,12 +79,19 @@ export function Sidebar() {
 
         <div className="mt-4 px-3 py-3 bg-gradient-to-r from-secondary/5 to-transparent rounded-xl border border-secondary/10 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold text-sm">
-            G
+            {initial}
           </div>
-          <div className="overflow-hidden">
-            <p className="text-sm font-semibold truncate">George Wilson</p>
+          <div className="overflow-hidden flex-1">
+            <p className="text-sm font-semibold truncate">{user?.name || 'Account'}</p>
             <p className="text-[10px] text-secondary uppercase tracking-wider font-semibold">Studio</p>
           </div>
+          <button
+            onClick={handleLogout}
+            title="Sign out"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-status-error hover:bg-surface-container transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </aside>
