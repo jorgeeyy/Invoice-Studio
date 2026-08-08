@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import {
   PlayCircle,
-  CheckCircle,
   Users,
   Zap,
   Mail,
@@ -11,6 +10,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
+import { EditorAnimation } from '@/components/EditorAnimation';
 import type { LucideIcon } from 'lucide-react';
 
 const features: Array<{
@@ -113,13 +113,13 @@ export function Landing() {
               >
                 <span className="relative z-10">Get Started Free</span>
               </Link>
-              <Link
-                to="/login"
+              <a
+                href="#about"
                 className="px-10 py-4 bg-surface-container-low border border-border-subtle rounded-xl text-lg font-semibold hover:bg-surface-container hover:border-secondary/30 transition-all flex items-center justify-center gap-2"
               >
                 <PlayCircle className="w-5 h-5 text-secondary" />
                 See in Action
-              </Link>
+              </a>
             </div>
           </div>
         </section>
@@ -158,76 +158,15 @@ export function Landing() {
 
         {/* Invoice Builder Feature */}
         <section id="about" className="py-20 sm:py-28 bg-surface-container-low border-y border-border-subtle px-4 sm:px-8">
-          <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div className="order-2 lg:order-1">
-              <div className="bg-surface-container-lowest rounded-2xl border border-border-subtle overflow-hidden shadow-xl shadow-black/5">
-                <div className="flex border-b border-border-subtle">
-                  <div className="w-1/3 p-6 border-r border-border-subtle bg-surface">
-                    <h4 className="text-xs font-bold text-on-surface-variant mb-6 uppercase tracking-wider">Editor</h4>
-                    <div className="space-y-4">
-                      <div className="space-y-1">
-                        <div className="h-2 w-12 bg-outline-variant rounded"></div>
-                        <div className="h-8 w-full bg-surface-container-lowest border border-border-subtle rounded"></div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="h-2 w-20 bg-outline-variant rounded"></div>
-                        <div className="h-24 w-full bg-surface-container-lowest border border-border-subtle rounded"></div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="h-2 w-16 bg-outline-variant rounded"></div>
-                        <div className="h-8 w-full bg-secondary text-white rounded flex items-center justify-center text-[10px]">Add Item</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-2/3 p-8">
-                    <div className="flex justify-between mb-12">
-                      <div className="h-10 w-10 bg-primary/10 rounded"></div>
-                      <div className="text-right">
-                        <div className="h-4 w-24 bg-primary/10 rounded mb-1 ml-auto"></div>
-                        <div className="h-3 w-16 bg-surface-container rounded ml-auto"></div>
-                      </div>
-                    </div>
-                    <div className="space-y-4 mb-8">
-                      <div className="flex justify-between border-b border-surface-container pb-2">
-                        <div className="h-3 w-32 bg-surface-container rounded"></div>
-                        <div className="h-3 w-12 bg-surface-container rounded"></div>
-                      </div>
-                      <div className="flex justify-between border-b border-surface-container pb-2">
-                        <div className="h-3 w-40 bg-surface-container rounded"></div>
-                        <div className="h-3 w-12 bg-surface-container rounded"></div>
-                      </div>
-                    </div>
-                    <div className="flex justify-end pt-4">
-                      <div className="text-right">
-                        <div className="h-2 w-12 bg-outline-variant rounded ml-auto mb-1"></div>
-                        <div className="h-6 w-24 bg-primary/20 rounded ml-auto"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="order-1 lg:order-2">
+          <div className="max-w-[1440px] mx-auto">
+            <div className="text-center mb-12">
               <span className="text-secondary text-xs font-bold uppercase tracking-widest mb-4 block">Live Preview</span>
-              <h2 className="font-headline text-[40px] sm:text-[48px] leading-tight mb-6">The Invoice Builder</h2>
-              <p className="text-lg text-on-surface-variant mb-8 leading-relaxed">
-                Experience our unique dual-pane builder. Edit your data on the left, watch your professional document update in real-time on the right. No guesswork, just precision.
+              <h2 className="font-headline text-[40px] sm:text-[48px] leading-tight mb-4">The Invoice Builder</h2>
+              <p className="text-lg text-on-surface-variant max-w-xl mx-auto">
+                Edit your data on the left, watch your professional document update in real-time on the right. No guesswork, just precision.
               </p>
-              <ul className="space-y-4">
-                <li className="flex items-center gap-3 text-sm">
-                  <CheckCircle className="w-5 h-5 text-status-paid flex-shrink-0" />
-                  Live dual-pane preview — edit on the left, see results on the right.
-                </li>
-                <li className="flex items-center gap-3 text-sm">
-                  <CheckCircle className="w-5 h-5 text-status-paid flex-shrink-0" />
-                  Download as PDF with print-ready formatting.
-                </li>
-                <li className="flex items-center gap-3 text-sm">
-                  <CheckCircle className="w-5 h-5 text-status-paid flex-shrink-0" />
-                  Five professional templates to match your style.
-                </li>
-              </ul>
             </div>
+            <EditorAnimation />
           </div>
         </section>
 
