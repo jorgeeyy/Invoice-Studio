@@ -122,31 +122,6 @@ export function Landing() {
               </Link>
             </div>
           </div>
-
-          {/* Dashboard Preview */}
-          <div className="max-w-[1100px] mx-auto relative z-10">
-            <div className="relative bg-surface-container-lowest border border-border-subtle rounded-2xl overflow-hidden shadow-xl">
-              <img
-                alt="Professional fintech dashboard in a modern home office"
-                className="w-full h-full object-cover"
-                src="/images/hero-dashboard.png"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Social Proof */}
-        <section className="py-14 border-y border-border-subtle bg-surface-container-lowest">
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
-            <p className="text-center text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-8">Trusted by freelancers worldwide</p>
-            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-              <img className="h-6" src="/images/logo-vertex.png" alt="Vertex Design" />
-              <img className="h-6" src="/images/logo-codestack.png" alt="CodeStack" />
-              <img className="h-6" src="/images/logo-nova.png" alt="Nova Consulting" />
-              <img className="h-6" src="/images/logo-byteflow.png" alt="Byteflow Solutions" />
-              <img className="h-6" src="/images/logo-stellar.png" alt="Stellar Creative" />
-            </div>
-          </div>
         </section>
 
         {/* Key Features */}
@@ -256,43 +231,6 @@ export function Landing() {
           </div>
         </section>
 
-        {/* Testimonial */}
-        <section className="py-20 sm:py-28 px-4 sm:px-8">
-          <div className="max-w-[700px] mx-auto text-center">
-            <span className="text-secondary/30 text-[80px] font-headline leading-none block mb-2">&ldquo;</span>
-            <blockquote className="text-xl sm:text-2xl mb-10 text-primary leading-relaxed">
-              Invoice Studio has completely streamlined my invoicing workflow. I used to spend hours every month formatting documents and managing client details. Now everything is organized in one place, and I can generate professional invoices in seconds.
-            </blockquote>
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-secondary/20 shadow-md">
-                <img className="w-full h-full object-cover" src="/images/avatar-alex.png" alt="Alex Rivera" />
-              </div>
-              <div>
-                <p className="font-semibold text-primary">Alex Rivera</p>
-                <p className="text-xs text-on-surface-variant uppercase tracking-widest mt-0.5">Senior Full-Stack Developer</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="py-20 sm:py-28 px-4 sm:px-8 bg-secondary">
-          <div className="max-w-[1440px] mx-auto text-center">
-            <h2 className="font-headline text-[40px] sm:text-[48px] md:text-[56px] text-white mb-8 leading-tight">
-              Ready to get serious<br className="hidden sm:block" /> about your business?
-            </h2>
-            <p className="text-lg text-white/60 max-w-2xl mx-auto mb-12 leading-relaxed">
-              Join thousands of freelancers who create professional invoices faster with Invoice Studio.
-            </p>
-            <Link
-              to="/signup"
-              className="inline-block px-12 py-5 bg-white text-secondary rounded-xl text-lg font-semibold hover:scale-[1.05] active:scale-[0.98] transition-all shadow-xl shadow-black/20"
-            >
-              Get Started Free
-            </Link>
-            <p className="mt-6 text-sm text-white/40">No credit card required. Cancel anytime.</p>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
